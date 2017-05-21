@@ -1,0 +1,98 @@
+WIRESHARK (auto) apt-get install -y wireshark
+HPING3 (auto) apt-get install -y hping3
+DNSMAP (auto) apt-get install -y dnsmap
+SQL-NINJA (auto) apt-get install -y sqlninja
+AIRCRACK-NG (auto) apt-get install -y aircrack-ng
+KISMET (auto) apt-get install -y kismet
+SKIPFISH (auto) apt-get install -y skipfish
+SLOWHTTPTEST (auto) apt-get install -y slowhttptest
+HYDRA (auto) apt-get install -y hydra
+JOHN-THE-RIPPER (auto) apt-get install -y john
+NMAP (auto) apt-get install -y nmap
+ETTERCAP (auto) apt-get install -y ettercap
+OPENVAS (auto) apt-get install -y openvas-cli
+NETCAT (auto) apt-get install -y netcat
+IKE-SCAN (auto) apt-get install -y ike-scan
+P0F (auto) apt-get install -y p0f
+NIKTO (auto) apt-get install -y nikto
+LYNIS (auto) apt-get install -y lynis
+HTTRACK	(auto) apt-get install -y httrack
+HTTRACK-DOC (dependecy) apt-get install -y httrack-doc
+PYRIT (auto) apt-get install -y pyrit
+NCRACK (auto) apt-get install -y ncrack
+MEDUSA (auto) apt-get install -y medusa
+OPHCRACK (auto) apt-get install -y ophcrack
+REAVER (auto) apt-get install -y reaver
+KISMET (auto) apt-get install -y kismet
+KISMET-PLUGINS (dependency) apt-get install -y kismet-plugins
+GQRX (auto) apt-get install -y gqrx
+COWPATTY (auto) apt-get install -y cowpatty
+CHIRP (auto) apt-get install -y chirp
+FLASM (auto) apt-get install -y flasm
+CLANG (auto) apt-get install -y clang
+CLANG-DEVEL (dependency) apt-get install -y clang-devel
+NETSNIFF-NG (auto) apt-get install -y netsniff-ng
+MACCHANGER (auto) apt-get install -y macchanger
+DRIFTNET (auto) apt-get install -y driftnet
+FOREMOST (auto) apt-get install -y foremost
+CHKROOTKIT (auto) apt-get install -y chkrootkit
+BINWALK (auto) apt-get install -y binwalk
+CUTYCAPT (auto) apt-get install -y CutyCapt
+MIMIKATZ (auto) apt-get install mimikatz
+HARVESTER (auto) apt-get install theharvester
+DOTDOTPWN (auto) apt-get install dotdotpwn
+JOOMSCAN (auto) apt-get install joomscan
+RECON-NG (auto) apt-get install recon-ng
+SETOOLKIT (auto) apt-get install set
+METASPLOIT-FRAMEWORK (auto) apt-get install metasploit-framework
+DUMPZILLA (auto) apt-get install dumpzilla
+SPARTA (auto) apt-get install sparta
+HASHCAT (auto) apt-get install hashcat
+FERRET (auto) apt-get install ferret
+RESPONDER (auto) apt-get installresponder
+BDFPROXY (auto) apt-get install bdfproxy
+WEBSPLOIT (auto) apt-get install websploit
+EXPLOIT-DB (auto) apt-get install exploitdb
+GUYMAGER (auto) apt-get install guymager
+REGRIPPER (auto) apt-get install regripper
+VOLATILITY (auto) apt-get install volatility
+MALTEGO (auto) apt-get install maltego-teeth
+GHOST-PHISHER (auto) apt-get install ghost-phisher
+W3AF (auto) apt-get install w3af
+ZAPROXY (auto) apt-get install zaproxy
+GOLISMERO (auto) apt-get install golismero
+BURPSUITE (auto) apt-get install burpsuite
+VEGA (auto) apt-get install vega
+WEBSCARAB (auto) apt-get install webscarab
+HEXORBASE (auto) apt-get install hexorbase
+CRUNCH (auto) apt-get install crunch
+RAINBOWCRACK (auto) apt-get install rainbowcrack
+WIFITE (auto) apt-get install wifite
+APKTOOL (auto) apt-get install apktool
+JAD (auto) apt-get install jad
+INGUMA (auto) apt-get install inguma
+SQLMAP (auto) apt-get install sqlmap
+HAMSTER-SIDEJACK (auto) apt-get install hamster-sidejack
+MITMPROXY (auto) apt-get install mitmproxy
+NISHANG (auto) apt-get install nishang
+WEEVELY (auto) apt-get install weevely
+CASEFILE (auto) apt-get install casefile
+MAGICTREE (auto) apt-get install magictree
+WHOIS (auto) apt-get install whois
+FIERCE (auto) apt-get install fierce
+SCAPY (auto) apt-get install scapy
+PIP-UPGRADE pip install --upgrade pip
+PIP-REQUESTS pip install requests
+SHODAN (auto) pip install shodan
+AUTOPWN (auto) pip install autopwn
+TERMINETER (auto) pip install termineter
+CREDCRACK (manual) git clone https://github.com/gojhonny/CredCrack.git
+POWERSPLOIT (manual) git clone https://github.com/PowerShellMafia/PowerSploit.git
+MIMIKATZ (manual) git clone https://github.com/gentilkiwi/mimikatz.git
+VOLATILITY (manual) git clone git://git.kali.org/packages/volatility.git
+PROXYCHAINS (manual) git clone https://github.com/rofl0r/proxychains-ng.git
+FINDMYIPHONE (manual) git clone https://github.com/manwhoami/FindMyiPhone.git
+METAGOOFIL (manual) git clone https://github.com/laramies/metagoofil.git
+GATEWAY-FINDER (manual) git clone https://github.com/pentestmonkey/gateway-finder.git
+FINISHED! (...) Thank You For Using Kali Tool Install.
+exit

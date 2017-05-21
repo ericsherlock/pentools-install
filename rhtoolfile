@@ -1,0 +1,96 @@
+WIRESHARK (auto) dnf install -y wireshark
+HPING3 (auto) dnf install -y hping3
+DNSMAP (auto) dnf install -y dnsmap
+SQL-NINJA (auto) dnf install -y sqlninja
+AIRCRACK-NG (auto) dnf install -y aircrack-ng
+KISMET (auto) dnf install -y kismet
+SKIPFISH (auto) dnf install -y skipfish
+SLOWHTTPTEST (auto) dnf install -y slowhttptest
+HYDRA (auto) dnf install -y hydra
+JOHN-THE-RIPPER (auto) dnf install -y john
+NMAP (auto) dnf install -y nmap
+ETTERCAP (auto) dnf install -y ettercap
+NETCAT (auto) dnf install -y nc6
+IKE-SCAN (auto) dnf install -y ike-scan
+P0F (auto) dnf install -y p0f
+NIKTO (auto) dnf install -y nikto
+LYNIS (auto) dnf install -y lynis
+HTTRACK	(auto) dnf install -y httrack
+HTTRACK-DEVEL (dependecy) dnf install -y httrack-devel
+PYRIT (auto) dnf install -y pyrit
+NCRACK (auto) dnf install -y ncrack
+MEDUSA (auto) dnf install -y medusa
+OPHCRACK (auto) dnf install -y ophcrack
+REAVER (auto) dnf install -y reaver
+KISMET (auto) dnf install -y kismet
+KISMET-PLUGINS (dependency) dnf install -y kismet-plugins
+GQRX (auto) dnf install -y gqrx
+COWPATTY (auto) dnf install -y cowpatty
+CHIRP (auto) dnf install -y chirp
+FLASM (auto) dnf install -y flasm
+CLANG (auto) dnf install -y clang
+CLANG-DEVEL (dependency) dnf install -y clang-devel
+NETSNIFF-NG (auto) dnf install -y netsniff-ng
+MACCHANGER (auto) dnf install -y macchanger
+DRIFTNET (auto) dnf install -y driftnet
+PROXYCHAINS (auto) dnf install -y proxychains-ng
+VOLATILITY (auto) dnf install -y python-volatility
+FOREMOST (auto) dnf install -y foremost
+CHKROOTKIT (auto) dnf install -y chkrootkit
+BINWALK (auto) dnf install -y binwalk
+CUTYCAPT (auto) dnf install -y CutyCapt
+WHOIS (auto) dnf install -y whois
+SCAPY (auto) dnf install -y scapy
+PIP-UPGRADE pip install --upgrade pip
+PIP-REQUESTS pip install requests
+SHODAN (auto) pip install shodan
+AUTOPWN (auto) pip install autopwn
+TERMINETER (auto) pip install termineter
+CREDCRACK (manual) git clone https://github.com/gojhonny/CredCrack.git
+POWERSPLOIT (manual) git clone https://github.com/PowerShellMafia/PowerSploit.git
+MIMIKATZ (manual) git clone https://github.com/gentilkiwi/mimikatz.git
+HARVESTER (manual) git clone https://github.com/laramies/theHarvester.git
+DOTDOTPWN (manual) git clone https://github.com/wireghoul/dotdotpwn.git
+JOOMSCAN (manual) git clone https://github.com/rezasp/joomscan.git
+RECON-NG (manual) git clone https://LaNMaSteR53@bitbucket.org/LaNMaSteR53/recon-ng.git
+SETOOLKIT (manual) git clone https://github.com/trustedsec/social-engineer-toolkit.git
+METASPLOIT-FRAMEWORK (manual) git clone https://github.com/rapid7/metasploit-framework.git
+DUMPZILLA (manual) git clone https://github.com/Busindre/dumpzilla.git
+FINDMYIPHONE (manual) git clone https://github.com/manwhoami/FindMyiPhone.git
+SPARTA (manual) git clone https://github.com/SECFORCE/sparta.git
+HASHCAT (manual) git clone https://github.com/hashcat/hashcat.git
+FERRET (manual) git clone https://github.com/dbalmain/ferret.git
+RESPONDER (manual) git clone https://github.com/SpiderLabs/Responder.git
+BDFPROXY (manual) git clone https://github.com/secretsquirrel/BDFProxy.git
+METAGOOFIL (manual) git clone https://github.com/laramies/metagoofil.git
+FIERCE (manual) git clone https://github.com/davidpepper/fierce-domain-scanner.git
+GATEWAY-FINDER (manual) git clone https://github.com/pentestmonkey/gateway-finder.git
+WEBSPLOIT (manual) git clone git://git.kali.org/packages/websploit.git
+EXPLOIT-DB (manual) git clone git://git.kali.org/packages/exploitdb.git
+GUYMAGER (manual) git clone git://git.kali.org/packages/guymager.git
+REGRIPPER (manual) git clone git://git.kali.org/packages/regripper.git
+VOLATILITY (manual) git clone git://git.kali.org/packages/volatility.git
+MALTEGO (manual) git clone git://git.kali.org/packages/maltego-teeth.git
+GHOST-PHISHER (manual) git clone git://git.kali.org/packages/ghost-phisher.git
+W3AF (manual) git clone git://git.kali.org/packages/w3af.git
+ZAPROXY (manual) git clone git://git.kali.org/packages/zaproxy.git
+GOLISMERO (manual) git clone git://git.kali.org/packages/golismero.git
+BURPSUITE (manual) git clone git://git.kali.org/packages/burpsuite.git
+VEGA (manual) git clone git://git.kali.org/packages/vega.git
+WEBSCARAB (manual) git clone git://git.kali.org/packages/webscarab.git
+HEXORBASE (manual) git clone git://git.kali.org/packages/hexorbase.git
+CRUNCH (manual) git clone git://git.kali.org/packages/crunch.git
+RAINBOWCRACK (manual) git clone git://git.kali.org/packages/rainbowcrack.git
+WIFITE (manual) git clone git://git.kali.org/packages/wifite.git
+APKTOOL (manual) git clone git://git.kali.org/packages/apktool.git
+JAD (manual) git clone git://git.kali.org/packages/jad.git
+INGUMA (manual) git clone git://git.kali.org/packages/inguma.git
+SQLMAP (manual) git clone git://git.kali.org/packages/sqlmap.git
+HAMSTER-SIDEJACK (manual) git clone git://git.kali.org/packages/hamster-sidejack.git
+MITMPROXY (manual) git clone git://git.kali.org/packages/mitmproxy.git
+NISHANG (manual) git clone git://git.kali.org/packages/nishang.git
+WEEVELY (manual) git clone git://git.kali.org/packages/weevely.git
+CASEFILE (manual) git clone git://git.kali.org/packages/casefile.git
+MAGICTREE (manual) git clone git://git.kali.org/packages/magictree.git
+FINISHED! (...) echo "Thank You For Using Pentest-Tools-Install."
+exit
