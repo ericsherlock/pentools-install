@@ -65,6 +65,8 @@ BDFPROXY (manual) git clone https://github.com/secretsquirrel/BDFProxy.git
 METAGOOFIL (manual) git clone https://github.com/laramies/metagoofil.git
 FIERCE (manual) git clone https://github.com/davidpepper/fierce-domain-scanner.git
 GATEWAY-FINDER (manual) git clone https://github.com/pentestmonkey/gateway-finder.git
+ENUM4LINUX (manual) git clone https://github.com/portcullislabs/enum4linux.git
+CREDDUMP (manual) git clone https://github.com/moyix/creddump.git
 WEBSPLOIT (manual) git clone git://git.kali.org/packages/websploit.git
 EXPLOIT-DB (manual) git clone git://git.kali.org/packages/exploitdb.git
 GUYMAGER (manual) git clone git://git.kali.org/packages/guymager.git

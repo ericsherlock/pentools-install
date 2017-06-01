@@ -81,6 +81,7 @@ MAGICTREE (auto) apt-get install magictree
 WHOIS (auto) apt-get install whois
 FIERCE (auto) apt-get install fierce
 SCAPY (auto) apt-get install scapy
+ENUM4LINUX (auto) apt-get install enum4linux
 PIP-UPGRADE pip install --upgrade pip
 PIP-REQUESTS pip install requests
 SHODAN (auto) pip install shodan
@@ -94,5 +95,6 @@ PROXYCHAINS (manual) git clone https://github.com/rofl0r/proxychains-ng.git
 FINDMYIPHONE (manual) git clone https://github.com/manwhoami/FindMyiPhone.git
 METAGOOFIL (manual) git clone https://github.com/laramies/metagoofil.git
 GATEWAY-FINDER (manual) git clone https://github.com/pentestmonkey/gateway-finder.git
+CREDDUMP (manual) git clone https://github.com/moyix/creddump.git
 FINISHED! (...) Thank You For Using Kali Tool Install.
 exit
