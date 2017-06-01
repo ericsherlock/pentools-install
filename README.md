@@ -160,7 +160,7 @@ SQLMAP: sqlmap is an open source penetration testing tool that automates the pro
 
 SQL-NINJA: Sqlninja is a tool targeted to exploit SQL Injection vulnerabilities on a web application that uses Microsoft SQL Server as its back-end. Its main goal is to provide a remote access on the vulnerable DB server, even in a very hostile environment. It should be used by penetration testers to help and automate the process of taking over a DB Server when a SQL Injection vulnerability has been discovered.
 
-TERMINETER: 
+TERMINETER: Termineter is a Python framework which provides a platform for the security testing of smart meters. It implements the C1218 and C1219 protocols for communication over an optical interface. Currently supported are Meters using C1219-2007 with 7-bit character sets. This is the most common configuration found in North America. Termineter communicates with Smart Meters via a connection using an ANSI type-2 optical probe with a serial interface. 
 
 VEGA: Vega is a free and open source scanner and testing platform to test the security of web applications. Vega can help you find and validate SQL Injection, Cross-Site Scripting (XSS), inadvertently disclosed sensitive information, and other vulnerabilities. It is written in Java, GUI based, and runs on Linux, OS X, and Windows. Vega includes an automated scanner for quick tests and an intercepting proxy for tactical inspection. The Vega scanner finds XSS (cross-site scripting), SQL injection, and other vulnerabilities. Vega can be extended using a powerful API in the language of the web: Javascript. 
 
