@@ -1,0 +1,158 @@
+#! /bin/bash
+
+set -euo pipefail
+
+LOGFILE="install_log"
+
+usage () {
+    echo "Usage: $0"
+}
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOGFILE"
+}
+
+exit_func () {
+    case "$1" in
+        1) log "Exit 1 --> Wrong Number of Arguments."; exit 1 ;;
+        2) log "Exit 2 --> Error Within Install Kali Tools Method."; exit 2 ;;
+        3) log "Exit 3 --> Missing required file: $2"; exit 3 ;;
+        4) log "Exit 4 --> Must be run as root."; exit 4 ;;
+        5) log "Exit 5 --> Required command not found: $2"; exit 5 ;;
+        *) log "Exit $1 --> Unknown error."; exit "$1" ;;
+    esac
+}
+
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        exit_func 4
+    fi
+}
+
+check_command() {
+    command -v "$1" >/dev/null 2>&1 || exit_func 5 "$1"
+}
+
+check_file() {
+    [ -f "$1" ] || exit_func 3 "$1"
+}
+
+check_requirements() {
+    check_command "cut"
+    check_command "tee"
+    check_command "date"
+    check_command "eval"
+    check_command "grep"
+    check_command "awk"
+    check_command "printf"
+    check_command "read"
+    check_command "mkdir"
+    check_command "mv"
+    check_command "cd"
+    check_command "cat"
+    check_command "head"
+    check_command "tail"
+    check_command "sort"
+    check_command "uniq"
+    check_command "basename"
+    check_command "dirname"
+    check_command "tr"
+    check_command "sed"
+    # Check for package managers
+    if ! command -v dnf >/dev/null && ! command -v apt-get >/dev/null; then
+        log "Neither dnf nor apt-get found. Exiting."
+        exit 1
+    fi
+    # Check for pip and git
+    check_command "pip" || check_command "pip3"
+    check_command "git"
+}
+
+confirm_install() {
+    read -p "Proceed with installing tools? [y/N]: " confirm
+    case "$confirm" in
+        [yY]*) ;;
+        *) log "Installation cancelled by user."; exit 0 ;;
+    esac
+}
+
+install_pentest_tools () {
+    local mode="$1"
+    local toolfile=""
+    local toolname=""
+    local installcmd=""
+    local eval_res=0
+
+    # Create directory and move files
+    local path
+    path=$(pwd)
+    log "Creating directory 'pentesting-tools' in current directory"
+    mkdir -p "$path/pentesting-tools"
+    for f in rhtoolfile apttoolfile; do
+        [ -f "$f" ] && mv "$f" "$path/pentesting-tools/" || true
+    done
+    cd "$path/pentesting-tools/"
+
+    # Select toolfile based on mode
+    if [ "$mode" -eq 1 ]; then
+        toolfile="rhtoolfile"
+    elif [ "$mode" -eq 2 ]; then
+        toolfile="apttoolfile"
+    else
+        exit_func 2
+    fi
+
+    check_file "$toolfile"
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+        toolname=$(cut -f1 -d" " <<< "$line")
+        installcmd=$(cut -d" " -f3- <<< "$line")
+
+        log "----------------------------------------------------------------------------------------------"
+        log "Installing: $toolname"
+        log "----------------------------------------------------------------------------------------------"
+
+        if [[ "$installcmd" == "exit"* ]]; then
+            log "Reached end of tool list."
+            break
+        fi
+
+        if [[ "$installcmd" == "" ]]; then
+            log "No install command found for $toolname. Skipping."
+            continue
+        fi
+
+        if ! eval "$installcmd"; then
+            log "Error installing: $toolname"
+            log "Try running the command manually: $installcmd"
+            log "Please look in the $LOGFILE file to find out more..."
+        else
+            log "$toolname : Installed Successfully!"
+        fi
+    done < "$toolfile"
+}
+
+main() {
+    check_root
+    check_requirements
+
+    if [ "$#" -ne 0 ]; then
+        usage
+        exit_func 1
+    fi
+
+    log "Starting Pentest Tools Installer"
+    confirm_install
+
+    read -p "Which Repository Do You Use? (d=dnf, a=apt-get): " ans
+    case $ans in
+        [dD]* ) install_pentest_tools 1 ;;
+        [aA]* ) install_pentest_tools 2 ;;
+        * ) log "Please Enter Either [Dd] or [Aa]"; exit 1 ;;
+    esac
+}
+
+main "$@"
