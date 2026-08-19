@@ -1,0 +1,44 @@
+# pentools_install — unified tool manifest (SEED — expanded in Phase 2)
+#
+# Format (pipe-delimited, whitespace around fields is ignored):
+#   name | category | method | apt | dnf | pacman | brew | fallback
+#
+#   name     canonical tool name (also used as the "already installed?" check)
+#   category recon | web | wireless | ad-lateral | forensics-re | cloud |
+#            osint | passwords | post-exploit
+#   method   documents the canonical install path (pkg|pipx|gem|go|git|binary)
+#   apt/dnf/pacman/brew
+#            native package name for that manager, or "-" if not packaged
+#   fallback used when no native package exists for the detected manager;
+#            "type:spec" -> pipx:NAME | gem:NAME | go:MODULE@ver |
+#            git:URL | binary:URL
+#
+# Resolution: a real native package for the detected manager wins; otherwise
+# the fallback spec is used; otherwise the tool is skipped on that platform.
+
+# --- recon ---
+nmap        | recon        | pkg  | nmap        | nmap        | nmap        | nmap        | -
+gobuster    | recon        | pkg  | gobuster    | gobuster    | gobuster    | gobuster    | go:github.com/OJ/gobuster/v3@latest
+amass       | recon        | pkg  | amass       | amass       | amass       | amass       | go:github.com/owasp-amass/amass/v4/...@master
+subfinder   | recon        | go   | -           | -           | subfinder   | subfinder   | go:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+
+# --- web ---
+sqlmap      | web          | pkg  | sqlmap      | sqlmap      | sqlmap      | sqlmap      | pipx:sqlmap
+nikto       | web          | pkg  | nikto       | nikto       | nikto       | nikto       | -
+ffuf        | web          | go   | ffuf        | -           | ffuf        | ffuf        | go:github.com/ffuf/ffuf/v2@latest
+nuclei      | web          | go   | -           | -           | nuclei      | nuclei      | go:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+# --- ad-lateral ---
+netexec     | ad-lateral   | pipx | -           | -           | -           | -           | pipx:git+https://github.com/Pennyw0rth/NetExec
+impacket    | ad-lateral   | pipx | impacket-scripts | python3-impacket | impacket | -   | pipx:impacket
+evil-winrm  | ad-lateral   | gem  | evil-winrm  | -           | -           | -           | gem:evil-winrm
+
+# --- passwords ---
+hashcat     | passwords    | pkg  | hashcat     | hashcat     | hashcat     | hashcat     | -
+john        | passwords    | pkg  | john        | john        | john        | john-jumbo  | -
+
+# --- osint ---
+theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:theHarvester
+
+# --- post-exploit ---
+mimikatz    | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/gentilkiwi/mimikatz.git

@@ -1,158 +1,249 @@
-#! /bin/bash
+#!/usr/bin/env bash
+#
+# pentools_install — multi-OS penetration-testing toolkit installer.
+#
+# Phase 1 (this revision): platform auto-detection, a unified manifest
+# resolver, and a --dry-run planner. Native package managers supported:
+# apt, dnf, pacman, and Homebrew. Python tools install via pipx (PEP 668
+# safe); Ruby/Go/git tools via their own handlers.
+#
+# Category selection, interactive menus, and the full flag set land in a
+# later phase; this revision installs (or plans) the whole manifest.
 
 set -euo pipefail
 
-LOGFILE="install_log"
+# --- Locate ourselves and load libraries ------------------------------------
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+MANIFEST="${PT_MANIFEST:-$SCRIPT_DIR/tools.manifest}"
+LOGFILE="${PT_LOGFILE:-$SCRIPT_DIR/install_log}"
 
-usage () {
-    echo "Usage: $0"
-}
+# --- Runtime state (defaults; overridden by flags) --------------------------
+PT_DRY_RUN=0
+PT_ASSUME_YES=0
+PT_GIT_DIR="$SCRIPT_DIR/pentesting-tools"
 
+# Detection globals (populated by detect_platform)
+PT_OS="" PT_DISTRO="" PT_PKG_MGR="" PT_PKG_COL="" PT_ARCH="" PT_NEEDS_ROOT=1
+
+# Run counters
+COUNT_PLANNED=0 COUNT_OK=0 COUNT_SKIP=0 COUNT_FAIL=0
+FAILED_TOOLS="" SKIPPED_TOOLS=""
+
+# --- Logging ----------------------------------------------------------------
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOGFILE"
 }
 
-exit_func () {
+die() {
+    log "ERROR: $*"
+    exit 1
+}
+
+# --- Load libs --------------------------------------------------------------
+# shellcheck source=lib/detect.sh
+. "$SCRIPT_DIR/lib/detect.sh"
+# shellcheck source=lib/installers.sh
+. "$SCRIPT_DIR/lib/installers.sh"
+
+usage() {
+    cat <<EOF
+Usage: $0 [options]
+
+Options:
+  --dry-run       Show what would be installed without changing anything.
+  --yes, -y       Assume "yes" to prompts (non-interactive).
+  --list          List all tools in the manifest and exit.
+  --help, -h      Show this help and exit.
+
+The package manager is auto-detected (apt / dnf / pacman / brew).
+Manifest: $MANIFEST
+EOF
+}
+
+parse_args() {
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --dry-run)   PT_DRY_RUN=1 ;;
+            --yes|-y)    PT_ASSUME_YES=1 ;;
+            --list)      DO_LIST=1 ;;
+            --help|-h)   usage; exit 0 ;;
+            *)           usage; die "Unknown argument: $1" ;;
+        esac
+        shift
+    done
+}
+
+# --- Manifest parsing -------------------------------------------------------
+# Manifest columns (pipe-delimited, whitespace trimmed):
+#   name | category | method | apt | dnf | pacman | brew | fallback
+# A "-" (or empty) column means "not available via that path".
+
+# trim <string> : strip leading/trailing whitespace.
+trim() {
+    local s="$1"
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+}
+
+# manifest_column <name> : return the 0-based index for a pkg-manager column.
+manifest_column() {
     case "$1" in
-        1) log "Exit 1 --> Wrong Number of Arguments."; exit 1 ;;
-        2) log "Exit 2 --> Error Within Install Kali Tools Method."; exit 2 ;;
-        3) log "Exit 3 --> Missing required file: $2"; exit 3 ;;
-        4) log "Exit 4 --> Must be run as root."; exit 4 ;;
-        5) log "Exit 5 --> Required command not found: $2"; exit 5 ;;
-        *) log "Exit $1 --> Unknown error."; exit "$1" ;;
+        apt) echo 3 ;; dnf) echo 4 ;; pacman) echo 5 ;; brew) echo 6 ;;
+        *) echo -1 ;;
     esac
 }
 
-check_root() {
-    if [ "$EUID" -ne 0 ]; then
-        exit_func 4
+# resolve_tool <fields...> : decide how to install the current tool for the
+# detected platform. Sets R_NAME, R_CAT, R_ACTION (native|fallback|skip),
+# R_ARG, R_WHY. Native package wins when available; else the fallback spec.
+resolve_tool() {
+    local name="$1" cat="$2" apt="$4" dnf="$5" pac="$6" brew="$7" fb="$8"
+    R_NAME="$name" R_CAT="$cat" R_ACTION="skip" R_ARG="" R_WHY=""
+
+    local col
+    case "$PT_PKG_COL" in
+        apt)    col="$apt" ;;
+        dnf)    col="$dnf" ;;
+        pacman) col="$pac" ;;
+        brew)   col="$brew" ;;
+        *)      col="-" ;;
+    esac
+
+    if [ -n "$col" ] && [ "$col" != "-" ]; then
+        R_ACTION="native"; R_ARG="$col"; R_WHY="$PT_PKG_MGR pkg"
+    elif [ -n "$fb" ] && [ "$fb" != "-" ]; then
+        R_ACTION="fallback"; R_ARG="$fb"; R_WHY="${fb%%:*}"
+    else
+        R_ACTION="skip"; R_WHY="not available on $PT_PKG_MGR"
     fi
 }
 
-check_command() {
-    command -v "$1" >/dev/null 2>&1 || exit_func 5 "$1"
+# for_each_tool <callback> : parse the manifest and invoke <callback> with the
+# eight trimmed fields for every non-comment, non-blank line.
+for_each_tool() {
+    local cb="$1" line f1 f2 f3 f4 f5 f6 f7 f8
+    while IFS= read -r line || [ -n "$line" ]; do
+        line="$(trim "$line")"
+        [ -z "$line" ] && continue
+        case "$line" in \#*) continue ;; esac
+        IFS='|' read -r f1 f2 f3 f4 f5 f6 f7 f8 <<EOF
+$line
+EOF
+        "$cb" "$(trim "$f1")" "$(trim "$f2")" "$(trim "$f3")" \
+              "$(trim "$f4")" "$(trim "$f5")" "$(trim "$f6")" \
+              "$(trim "$f7")" "$(trim "$f8")"
+    done < "$MANIFEST"
 }
 
-check_file() {
-    [ -f "$1" ] || exit_func 3 "$1"
+# --- Callbacks --------------------------------------------------------------
+list_cb() {
+    printf '  %-18s %-14s %s\n' "$1" "$2" "$3"
 }
 
-check_requirements() {
-    check_command "cut"
-    check_command "tee"
-    check_command "date"
-    check_command "eval"
-    check_command "grep"
-    check_command "awk"
-    check_command "printf"
-    check_command "read"
-    check_command "mkdir"
-    check_command "mv"
-    check_command "cd"
-    check_command "cat"
-    check_command "head"
-    check_command "tail"
-    check_command "sort"
-    check_command "uniq"
-    check_command "basename"
-    check_command "dirname"
-    check_command "tr"
-    check_command "sed"
-    # Check for package managers
-    if ! command -v dnf >/dev/null && ! command -v apt-get >/dev/null; then
-        log "Neither dnf nor apt-get found. Exiting."
-        exit 1
+install_cb() {
+    resolve_tool "$@"
+    COUNT_PLANNED=$((COUNT_PLANNED + 1))
+
+    if [ "$R_ACTION" = "skip" ]; then
+        log "SKIP  $R_NAME ($R_WHY)"
+        COUNT_SKIP=$((COUNT_SKIP + 1))
+        SKIPPED_TOOLS="$SKIPPED_TOOLS $R_NAME"
+        return 0
     fi
-    # Check for pip and git
-    check_command "pip" || check_command "pip3"
-    check_command "git"
+
+    # Idempotency: if a binary named like the tool is already present, skip.
+    if [ "$PT_DRY_RUN" != "1" ] && tool_present "$R_NAME"; then
+        log "SKIP  $R_NAME (already installed)"
+        COUNT_SKIP=$((COUNT_SKIP + 1))
+        SKIPPED_TOOLS="$SKIPPED_TOOLS $R_NAME"
+        return 0
+    fi
+
+    log "PLAN  $R_NAME  ->  $R_ACTION ($R_WHY): $R_ARG"
+
+    local ok=0
+    if [ "$R_ACTION" = "native" ]; then
+        native_install "$R_ARG" || ok=1
+    else
+        dispatch_fallback "$R_ARG" || ok=1
+    fi
+
+    if [ "$ok" -eq 0 ]; then
+        COUNT_OK=$((COUNT_OK + 1))
+        [ "$PT_DRY_RUN" = "1" ] || log "OK    $R_NAME installed"
+    else
+        COUNT_FAIL=$((COUNT_FAIL + 1))
+        FAILED_TOOLS="$FAILED_TOOLS $R_NAME"
+        log "FAIL  $R_NAME (see $LOGFILE)"
+    fi
+}
+
+# --- Preflight --------------------------------------------------------------
+preflight() {
+    [ -f "$MANIFEST" ] || die "Manifest not found: $MANIFEST"
+
+    detect_platform || die "No supported package manager found (need apt, dnf, pacman, or brew)."
+    log "Detected platform: $(platform_summary)"
+
+    # Root is required for native Linux managers but NOT for Homebrew.
+    if [ "$PT_NEEDS_ROOT" -eq 1 ] && [ "$PT_DRY_RUN" != "1" ]; then
+        if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+            die "$PT_PKG_MGR requires root. Re-run with sudo."
+        fi
+    fi
+    if [ "$PT_PKG_MGR" = "brew" ] && [ "${EUID:-$(id -u)}" -eq 0 ]; then
+        die "Homebrew must not be run as root. Re-run as a normal user."
+    fi
+
+    mkdir -p "$PT_GIT_DIR"
 }
 
 confirm_install() {
-    read -p "Proceed with installing tools? [y/N]: " confirm
-    case "$confirm" in
-        [yY]*) ;;
+    [ "$PT_ASSUME_YES" -eq 1 ] && return 0
+    [ "$PT_DRY_RUN" -eq 1 ] && return 0
+    printf 'Proceed with installing tools on %s? [y/N]: ' "$PT_PKG_MGR"
+    local reply
+    read -r reply
+    case "$reply" in
+        [yY]*) return 0 ;;
         *) log "Installation cancelled by user."; exit 0 ;;
     esac
 }
 
-install_pentest_tools () {
-    local mode="$1"
-    local toolfile=""
-    local toolname=""
-    local installcmd=""
-    local eval_res=0
-
-    # Create directory and move files
-    local path
-    path=$(pwd)
-    log "Creating directory 'pentesting-tools' in current directory"
-    mkdir -p "$path/pentesting-tools"
-    for f in rhtoolfile apttoolfile; do
-        [ -f "$f" ] && mv "$f" "$path/pentesting-tools/" || true
-    done
-    cd "$path/pentesting-tools/"
-
-    # Select toolfile based on mode
-    if [ "$mode" -eq 1 ]; then
-        toolfile="rhtoolfile"
-    elif [ "$mode" -eq 2 ]; then
-        toolfile="apttoolfile"
-    else
-        exit_func 2
-    fi
-
-    check_file "$toolfile"
-
-    while IFS= read -r line || [ -n "$line" ]; do
-        # Skip empty lines and comments
-        [[ -z "$line" || "$line" =~ ^# ]] && continue
-
-        toolname=$(cut -f1 -d" " <<< "$line")
-        installcmd=$(cut -d" " -f3- <<< "$line")
-
-        log "----------------------------------------------------------------------------------------------"
-        log "Installing: $toolname"
-        log "----------------------------------------------------------------------------------------------"
-
-        if [[ "$installcmd" == "exit"* ]]; then
-            log "Reached end of tool list."
-            break
-        fi
-
-        if [[ "$installcmd" == "" ]]; then
-            log "No install command found for $toolname. Skipping."
-            continue
-        fi
-
-        if ! eval "$installcmd"; then
-            log "Error installing: $toolname"
-            log "Try running the command manually: $installcmd"
-            log "Please look in the $LOGFILE file to find out more..."
-        else
-            log "$toolname : Installed Successfully!"
-        fi
-    done < "$toolfile"
+summary() {
+    log "----------------------------------------------------------------"
+    log "Summary: planned=$COUNT_PLANNED ok=$COUNT_OK skipped=$COUNT_SKIP failed=$COUNT_FAIL"
+    [ -n "$SKIPPED_TOOLS" ] && log "Skipped:$SKIPPED_TOOLS"
+    [ -n "$FAILED_TOOLS" ]  && log "Failed: $FAILED_TOOLS"
+    log "Log written to: $LOGFILE"
 }
 
+# --- Main -------------------------------------------------------------------
 main() {
-    check_root
-    check_requirements
+    DO_LIST=0
+    parse_args "$@"
 
-    if [ "$#" -ne 0 ]; then
-        usage
-        exit_func 1
+    if [ "${DO_LIST:-0}" -eq 1 ]; then
+        echo "Tools in manifest ($MANIFEST):"
+        for_each_tool list_cb
+        exit 0
     fi
 
-    log "Starting Pentest Tools Installer"
+    log "=== pentools_install starting ==="
+    preflight
     confirm_install
 
-    read -p "Which Repository Do You Use? (d=dnf, a=apt-get): " ans
-    case $ans in
-        [dD]* ) install_pentest_tools 1 ;;
-        [aA]* ) install_pentest_tools 2 ;;
-        * ) log "Please Enter Either [Dd] or [Aa]"; exit 1 ;;
-    esac
+    if [ "$PT_DRY_RUN" -eq 1 ]; then
+        log "DRY-RUN mode: no changes will be made."
+    else
+        log "Refreshing package indexes..."
+        refresh_indexes || log "WARN: index refresh failed; continuing"
+    fi
+
+    for_each_tool install_cb
+    summary
+    log "=== pentools_install finished ==="
 }
 
 main "$@"
