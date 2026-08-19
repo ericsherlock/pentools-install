@@ -10,7 +10,7 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install ShellCheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
       - name: Report (all findings, non-blocking)
@@ -22,7 +22,7 @@ jobs:
     name: Syntax (bash -n)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Parse all scripts
         run: |
           for f in pentools_install lib/*.sh; do
@@ -34,7 +34,7 @@ jobs:
     name: Manifest integrity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Every row has 8 or 9 pipe-delimited fields
         run: |
           bad=$(awk -F'|' '!/^[[:space:]]*#/ && $0 !~ /^[[:space:]]*$/ { if (NF!=8 && NF!=9) print NR": "$0 }' tools.manifest)
@@ -57,7 +57,7 @@ jobs:
           - image: archlinux:latest
             setup: pacman -Sy --noconfirm gawk git
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Plan a full install inside ${{ matrix.image }}
         run: |
           docker run --rm -v "$PWD":/work -w /work "${{ matrix.image }}" bash -c '
