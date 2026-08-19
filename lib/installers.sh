@@ -98,11 +98,80 @@ git_install() {
     fi
 }
 
-# binary_install <spec> : download a release asset and place it on PATH.
-# Stubbed until Phase 2/3; records intent so --dry-run stays informative.
+# binary_install <spec> : download a release asset and place it on PATH under
+# /usr/local/bin. Spec forms:
+#   binary:BIN@URL   -> install as <BIN> from <URL>
+#   binary:URL       -> install as basename(URL)
+# URL may contain {os} (linux|darwin) and {arch} (amd64|arm64|...) which are
+# substituted for the detected platform. Handles raw binaries, .tar.gz/.tgz,
+# and .zip assets; for archives the first file named <BIN> is extracted.
 binary_install() {
-    log "TODO(binary handler): would fetch release asset: $1"
-    return 0
+    local spec="$1" bin url os tmp asset dest
+    case "$spec" in
+        *@*) bin="${spec%%@*}"; url="${spec#*@}" ;;
+        *)   bin=""; url="$spec" ;;
+    esac
+
+    os="$PT_OS"; [ "$os" = "macos" ] && os="darwin"
+    url="${url//\{os\}/$os}"
+    url="${url//\{arch\}/$PT_ARCH}"
+    # Derive the binary name from the (substituted) URL when not given as BIN@.
+    [ -z "$bin" ] && bin="$(basename "$url")"
+    dest="/usr/local/bin/$bin"
+
+    if [ "${PT_DRY_RUN:-0}" = "1" ]; then
+        log "DRY-RUN: download '$url' -> '$dest'"
+        return 0
+    fi
+
+    local fetch
+    if command -v curl >/dev/null 2>&1; then
+        fetch="curl -fsSL -o"
+    elif command -v wget >/dev/null 2>&1; then
+        fetch="wget -qO"
+    else
+        log "Neither curl nor wget available for binary install of '$bin'"
+        return 1
+    fi
+
+    tmp="$(mktemp -d)" || return 1
+    asset="$tmp/$(basename "$url")"
+
+    if ! $fetch "$asset" "$url"; then
+        log "Download failed: $url"
+        rm -rf "$tmp"; return 1
+    fi
+
+    local rc=0
+    case "$asset" in
+        *.tar.gz|*.tgz)
+            tar -xzf "$asset" -C "$tmp" || rc=1
+            _binary_place "$tmp" "$bin" "$dest" || rc=1
+            ;;
+        *.zip)
+            (cd "$tmp" && unzip -oq "$asset") || rc=1
+            _binary_place "$tmp" "$bin" "$dest" || rc=1
+            ;;
+        *)
+            install -m 0755 "$asset" "$dest" || rc=1
+            ;;
+    esac
+
+    rm -rf "$tmp"
+    return "$rc"
+}
+
+# _binary_place <search_dir> <bin> <dest> : find the first file named <bin>
+# under <search_dir> and install it to <dest>.
+_binary_place() {
+    local dir="$1" bin="$2" dest="$3" found
+    found="$(find "$dir" -type f -name "$bin" -perm -u+x 2>/dev/null | head -n1)"
+    [ -z "$found" ] && found="$(find "$dir" -type f -name "$bin" 2>/dev/null | head -n1)"
+    if [ -z "$found" ]; then
+        log "Could not locate '$bin' in downloaded archive"
+        return 1
+    fi
+    install -m 0755 "$found" "$dest"
 }
 
 # ---------------------------------------------------------------------------

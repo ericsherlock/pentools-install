@@ -1,7 +1,12 @@
 # pentools_install — unified tool manifest
 #
 # Format (pipe-delimited, whitespace around fields is ignored):
-#   name | category | method | apt | dnf | pacman | brew | fallback
+#   name | category | method | apt | dnf | pacman | brew | fallback | check
+#
+#   check    OPTIONAL 9th field: the command used to detect "already
+#            installed" so re-runs skip cleanly. Defaults to `name`; set it
+#            only when the installed binary differs (e.g. volatility3 -> vol,
+#            theharvester -> theHarvester, exploitdb -> searchsploit).
 #
 #   name     canonical tool name (also the default "already installed?" check)
 #   category recon | web | wireless | ad-lateral | passwords | forensics-re |
@@ -109,7 +114,7 @@ hcxtools    | wireless     | pkg  | hcxtools    | hcxtools    | hcxtools    | hc
 hcxdumptool | wireless     | pkg  | hcxdumptool | hcxdumptool | hcxdumptool | -           | -
 mdk4        | wireless     | pkg  | mdk4        | -           | mdk4        | -           | -
 bettercap   | wireless     | pkg  | bettercap   | bettercap   | bettercap   | bettercap   | go:github.com/bettercap/bettercap@latest
-rtl-sdr     | wireless     | pkg  | rtl-sdr     | rtl-sdr     | rtl-sdr     | librtlsdr   | -
+rtl-sdr     | wireless     | pkg  | rtl-sdr     | rtl-sdr     | rtl-sdr     | librtlsdr   | - | rtl_sdr
 gqrx        | wireless     | pkg  | gqrx-sdr    | gqrx        | gqrx        | -           | -
 
 # ============================================================================
@@ -142,12 +147,12 @@ crunch      | passwords    | pkg  | crunch      | -           | crunch      | - 
 cewl        | passwords    | pkg  | cewl        | -           | cewl        | -           | -
 patator     | passwords    | pipx | patator     | -           | -           | -           | pipx:patator
 hashid      | passwords    | pipx | hashid      | -           | hashid      | -           | pipx:hashID
-name-that-hash | passwords | pipx | -           | -           | -           | -           | pipx:name-that-hash
+name-that-hash | passwords | pipx | -           | -           | -           | -           | pipx:name-that-hash | nth
 
 # ============================================================================
 # forensics-re — forensics, memory, reverse engineering
 # ============================================================================
-volatility3 | forensics-re | pipx | -           | -           | -           | -           | pipx:volatility3
+volatility3 | forensics-re | pipx | -           | -           | -           | -           | pipx:volatility3 | vol
 binwalk     | forensics-re | pkg  | binwalk     | binwalk     | binwalk     | binwalk     | -
 foremost    | forensics-re | pkg  | foremost    | foremost    | foremost    | foremost    | -
 exiftool    | forensics-re | pkg  | libimage-exiftool-perl | perl-Image-ExifTool | perl-image-exiftool | exiftool | -
@@ -168,7 +173,7 @@ pwntools    | forensics-re | pipx | -           | -           | -           | - 
 # ============================================================================
 # osint
 # ============================================================================
-theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:theHarvester
+theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:theHarvester | theHarvester
 recon-ng    | osint        | pkg  | recon-ng    | -           | recon-ng    | -           | pipx:recon-ng
 spiderfoot  | osint        | pipx | spiderfoot  | -           | -           | -           | pipx:spiderfoot
 sherlock    | osint        | pipx | sherlock    | -           | -           | -           | pipx:sherlock-project
@@ -182,7 +187,7 @@ dnstwist    | osint        | pipx | dnstwist    | -           | dnstwist    | dn
 # ============================================================================
 # cloud
 # ============================================================================
-awscli      | cloud        | pkg  | awscli      | awscli      | aws-cli-v2  | awscli      | pipx:awscli
+awscli      | cloud        | pkg  | awscli      | awscli      | aws-cli-v2  | awscli      | pipx:awscli | aws
 scoutsuite  | cloud        | pipx | -           | -           | -           | -           | pipx:scoutsuite
 prowler     | cloud        | pipx | -           | -           | -           | -           | pipx:prowler
 pacu        | cloud        | pipx | -           | -           | -           | -           | pipx:pacu
@@ -200,8 +205,8 @@ chkrootkit  | vuln         | pkg  | chkrootkit  | chkrootkit  | chkrootkit  | - 
 # ============================================================================
 # exploitation — frameworks
 # ============================================================================
-metasploit-framework | exploitation | pkg | metasploit-framework | - | metasploit | metasploit | -
-exploitdb   | exploitation | pkg  | exploitdb   | -           | exploitdb   | exploitdb   | git:https://gitlab.com/exploit-database/exploitdb.git
+metasploit-framework | exploitation | pkg | metasploit-framework | - | metasploit | metasploit | - | msfconsole
+exploitdb   | exploitation | pkg  | exploitdb   | -           | exploitdb   | exploitdb   | git:https://gitlab.com/exploit-database/exploitdb.git | searchsploit
 setoolkit   | exploitation | pkg  | set         | -           | set         | -           | git:https://github.com/trustedsec/social-engineer-toolkit.git
 beef-xss    | exploitation | pkg  | beef-xss    | -           | beef        | -           | -
 
