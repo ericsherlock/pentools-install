@@ -10,19 +10,19 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install ShellCheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - uses: actions/checkout@v5
+      # Run from the official image instead of apt-get, which is a flaky
+      # network dependency on the runner. The image ships a pinned shellcheck.
       - name: Report (all findings, non-blocking)
-        run: shellcheck -x pentools_install lib/*.sh || true
+        run: docker run --rm -v "$PWD":/mnt -w /mnt koalaman/shellcheck:stable -x pentools_install lib/*.sh || true
       - name: Gate (fail on errors only)
-        run: shellcheck --severity=error -x pentools_install lib/*.sh
+        run: docker run --rm -v "$PWD":/mnt -w /mnt koalaman/shellcheck:stable --severity=error -x pentools_install lib/*.sh
 
   syntax:
     name: Syntax (bash -n)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Parse all scripts
         run: |
           for f in pentools_install lib/*.sh; do
@@ -34,7 +34,7 @@ jobs:
     name: Manifest integrity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Every row has 8 or 9 pipe-delimited fields
         run: |
           bad=$(awk -F'|' '!/^[[:space:]]*#/ && $0 !~ /^[[:space:]]*$/ { if (NF!=8 && NF!=9) print NR": "$0 }' tools.manifest)
@@ -57,7 +57,7 @@ jobs:
           - image: archlinux:latest
             setup: pacman -Sy --noconfirm gawk git
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Plan a full install inside ${{ matrix.image }}
         run: |
           docker run --rm -v "$PWD":/work -w /work "${{ matrix.image }}" bash -c '
