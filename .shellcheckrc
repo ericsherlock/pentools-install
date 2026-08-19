@@ -1,0 +1,4 @@
+# ShellCheck configuration for pentools-install.
+# Libraries are sourced dynamically by path at runtime; the `source=` hint
+# comments handle resolution, but disable the "can't follow" noise globally.
+disable=SC1090,SC1091

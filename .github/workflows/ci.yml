@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Report (all findings, non-blocking)
+        run: shellcheck -x pentools_install lib/*.sh || true
+      - name: Gate (fail on errors only)
+        run: shellcheck --severity=error -x pentools_install lib/*.sh
+
+  syntax:
+    name: Syntax (bash -n)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse all scripts
+        run: |
+          for f in pentools_install lib/*.sh; do
+            echo "bash -n $f"
+            bash -n "$f"
+          done
+
+  manifest:
+    name: Manifest integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every row has 8 or 9 pipe-delimited fields
+        run: |
+          bad=$(awk -F'|' '!/^[[:space:]]*#/ && $0 !~ /^[[:space:]]*$/ { if (NF!=8 && NF!=9) print NR": "$0 }' tools.manifest)
+          if [ -n "$bad" ]; then
+            echo "Malformed manifest rows:"; echo "$bad"; exit 1
+          fi
+          echo "All manifest rows well-formed."
+
+  dry-run-matrix:
+    name: Dry-run (${{ matrix.image }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: debian:latest
+            setup: apt-get update && apt-get install -y gawk git
+          - image: fedora:latest
+            setup: dnf install -y gawk git
+          - image: archlinux:latest
+            setup: pacman -Sy --noconfirm gawk git
+    steps:
+      - uses: actions/checkout@v4
+      - name: Plan a full install inside ${{ matrix.image }}
+        run: |
+          docker run --rm -v "$PWD":/work -w /work "${{ matrix.image }}" bash -c '
+            set -e
+            ${{ matrix.setup }}
+            ./pentools_install --dry-run --all 2>&1 | tee out.txt
+            grep -q "Summary:" out.txt
+            grep -q "failed=0" out.txt
+            echo "Dry-run OK on ${{ matrix.image }}"
+          '
