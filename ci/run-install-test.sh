@@ -24,16 +24,37 @@ case "$mode" in
     *)     sample="--sample 1" ;;
 esac
 
-# Assert the installer reported failed=0 in its summary line.
+# Tools with no install path on a given target — genuinely absent from that
+# ecosystem with no cross-distro fallback. A shard is tolerated ONLY if every
+# failing tool is on this list (space-separated, keyed by target).
+expected_fail_for() {
+    case "$1" in
+        debian) echo "metasploit-framework" ;;   # Kali-only; not in Debian repos
+        *)      echo "" ;;
+    esac
+}
+
+# Pass if the installer reported failed=0, or if the only failures are tools
+# known to be unavailable on this target (see expected_fail_for).
 assert_clean() {
     local logfile="$1"
     grep -q 'Summary:' "$logfile" || { echo "No summary produced"; return 1; }
-    if ! grep -q 'failed=0' "$logfile"; then
-        echo "::error::install failures in $target/$category"
+    grep -q 'failed=0' "$logfile" && { echo "OK: $target/$category clean (failed=0)"; return 0; }
+
+    local failed exp leftover t
+    failed=$(grep -E '\] Failed:' "$logfile" | sed -E 's/.*Failed: *//' | tr -s ' ')
+    exp=" $(expected_fail_for "$target") "
+    leftover=""
+    for t in $failed; do
+        case "$exp" in *" $t "*) : ;; *) leftover="$leftover $t" ;; esac
+    done
+
+    if [ -n "$(printf '%s' "$leftover" | tr -d ' ')" ]; then
+        echo "::error::unexpected install failures on $target/$category:$leftover"
         grep -E 'FAIL |Summary:' "$logfile" || true
         return 1
     fi
-    echo "OK: $target/$category clean (failed=0)"
+    echo "OK: $target/$category — only known-unavailable tools failed ($failed)"
 }
 
 # Bootstrap the BlackArch repos (needed for many pacman package names).
@@ -57,25 +78,30 @@ run_in_container() {
     assert_clean out.txt
 }
 
+# Toolchains needed so fallbacks work: go (go:), ruby/gems (gem:), git (git:),
+# pipx (pipx:), plus a C/Rust build chain for pipx tools that build from source
+# (e.g. NetExec's crypto deps).
 case "$target" in
     kali)
         run_in_container "kalilinux/kali-rolling" \
-            "apt-get update && apt-get install -y gawk git golang-go ruby-full curl pipx findutils"
+            "apt-get update && apt-get install -y gawk git golang-go ruby-full curl pipx findutils build-essential python3-dev cargo"
         ;;
     debian)
         run_in_container "debian:latest" \
-            "apt-get update && apt-get install -y gawk git golang-go ruby-full curl pipx findutils"
+            "apt-get update && apt-get install -y gawk git golang-go ruby-full curl pipx findutils build-essential python3-dev cargo"
         ;;
     fedora)
         run_in_container "fedora:latest" \
-            "dnf install -y gawk git golang rubygems curl pipx findutils"
+            "dnf install -y gawk git golang rubygems curl pipx findutils gcc python3-devel cargo"
         ;;
     arch)
         run_in_container "archlinux:latest" \
-            "pacman -Sy --noconfirm --needed gawk git go ruby curl python-pipx findutils && $blackarch_strap"
+            "pacman -Sy --noconfirm --needed gawk git go ruby curl python-pipx findutils base-devel rust && $blackarch_strap"
         ;;
     macos)
-        # Native run on the macOS runner (Homebrew, no root).
+        # Native run on the macOS runner (Homebrew, no root). Ensure the go
+        # toolchain is present for go: fallbacks (not preinstalled reliably).
+        command -v go >/dev/null 2>&1 || brew install go
         ./pentools_install --only "$category" --yes $sample 2>&1 | tee out.txt
         assert_clean out.txt
         ;;

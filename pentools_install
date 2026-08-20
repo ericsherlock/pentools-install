@@ -119,14 +119,17 @@ manifest_column() {
 
 # resolve_tool <fields...> : decide how to install the current tool for the
 # detected platform. Sets R_NAME, R_CAT, R_ACTION (native|fallback|skip),
-# R_ARG, R_WHY, R_CHECK. Native package wins when available; else fallback.
-# The optional 9th field is an explicit "already installed?" probe command;
-# it defaults to the tool name when omitted.
+# R_ARG, R_WHY, R_CHECK, R_FALLBACK. Native package wins when available; else
+# the fallback spec. R_FALLBACK holds the fallback even for native actions, so
+# a failed native install can retry it. The optional 9th field is an explicit
+# "already installed?" probe command; it defaults to the tool name when omitted.
 resolve_tool() {
     local name="$1" cat="$2" apt="$4" dnf="$5" pac="$6" brew="$7" fb="$8" check="${9:-}"
     R_NAME="$name" R_CAT="$cat" R_ACTION="skip" R_ARG="" R_WHY=""
     R_CHECK="$check"
     [ -z "$R_CHECK" ] || [ "$R_CHECK" = "-" ] && R_CHECK="$name"
+
+    if [ -n "$fb" ] && [ "$fb" != "-" ]; then R_FALLBACK="$fb"; else R_FALLBACK=""; fi
 
     local col
     case "$PT_PKG_COL" in
@@ -139,8 +142,8 @@ resolve_tool() {
 
     if [ -n "$col" ] && [ "$col" != "-" ]; then
         R_ACTION="native"; R_ARG="$col"; R_WHY="$PT_PKG_MGR pkg"
-    elif [ -n "$fb" ] && [ "$fb" != "-" ]; then
-        R_ACTION="fallback"; R_ARG="$fb"; R_WHY="${fb%%:*}"
+    elif [ -n "$R_FALLBACK" ]; then
+        R_ACTION="fallback"; R_ARG="$R_FALLBACK"; R_WHY="${R_FALLBACK%%:*}"
     else
         R_ACTION="skip"; R_WHY="not available on $PT_PKG_MGR"
     fi
@@ -217,7 +220,16 @@ install_cb() {
 
     local ok=0
     if [ "$R_ACTION" = "native" ]; then
-        native_install "$R_ARG" || ok=1
+        if ! native_install "$R_ARG"; then
+            # Native package failed (e.g. a Kali-only name on plain Debian).
+            # Recover via the fallback spec if one exists.
+            if [ -n "$R_FALLBACK" ] && [ "$PT_DRY_RUN" != "1" ]; then
+                log "native install failed for $R_NAME; trying fallback: $R_FALLBACK"
+                dispatch_fallback "$R_FALLBACK" || ok=1
+            else
+                ok=1
+            fi
+        fi
     else
         dispatch_fallback "$R_ARG" || ok=1
     fi
