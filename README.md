@@ -73,6 +73,7 @@ sudo ./pentools_install --all --skip burpsuite,metasploit-framework
 | `--all`           | Install every category (skips the menu). |
 | `--only <cats>`   | Install only these categories (comma separated). |
 | `--skip <tools>`  | Skip these tools by name (comma separated). |
+| `--sample <N>`    | Install only the first N tools per selected category (0 = all). Used by the CI install-test smoke tier. |
 | `--dry-run`       | Show what would be installed; make no changes. Needs no root. |
 | `--yes`, `-y`     | Assume "yes"; install all categories if no `--only` is given. |
 | `--list`          | List every tool in the manifest and exit. |
@@ -186,6 +187,13 @@ Every push and PR runs [CI](.github/workflows/ci.yml):
 - **Manifest integrity** — every row has a valid field count.
 - **Dry-run matrix** — a full `--dry-run --all` inside `debian`, `fedora`, and
   `archlinux` containers.
+
+A separate [Install Test](.github/workflows/install-test.yml) workflow does
+**real** installs (not dry-run), sharded `target × category` across Kali,
+Debian, Fedora, Arch+BlackArch, and macOS, gated on the installer reporting
+`failed=0`. It runs weekly (and on demand via the Actions tab) with a
+**smoke** tier (one tool per category, the default) or a **full** tier (every
+tool). Free on this public repo.
 
 ---
 

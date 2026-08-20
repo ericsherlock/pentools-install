@@ -121,6 +121,24 @@ resolve_selection() {
     log "Selected categories:$(echo " $PT_SELECTED" | tr ',' ' ')"
 }
 
+# compute_sample_set : populate PT_SAMPLE_TOOLS with the first PT_SAMPLE tool
+# names of each selected category (plus all "base" tools). Manifest order
+# determines which tools are the "representatives". Used by --sample.
+compute_sample_set() {
+    PT_SAMPLE_TOOLS="$(awk -F'|' -v n="$PT_SAMPLE" -v sel=",$PT_SELECTED," '
+        function trim(s){ gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+        /^[[:space:]]*#/ { next }
+        /^[[:space:]]*$/ { next }
+        {
+            name = trim($1); cat = trim($2)
+            if (cat == "base") { print name; next }
+            if (index(sel, "," cat ",") == 0) next
+            count[cat]++
+            if (count[cat] <= n) print name
+        }
+    ' "$MANIFEST" | tr "\n" " ")"
+}
+
 # print_summary : end-of-run report.
 print_summary() {
     log "----------------------------------------------------------------"
