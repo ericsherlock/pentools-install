@@ -112,7 +112,9 @@ Run `./pentools_install --categories` for the live counts.
 3. **Refresh** the package index once (`apt-get update`, `dnf makecache`,
    `pacman -Sy`, or `brew update`).
 4. For each selected tool, **resolve** how to install it for your platform:
-   - a real native package for your manager → install it natively;
+   - a real native package for your manager → install it natively (and if that
+     install **fails** — e.g. a Kali-only name on plain Debian — automatically
+     retry the tool's fallback);
    - otherwise the tool's **fallback** spec → `pipx` / `gem` / `go` / `git` /
      `binary`;
    - otherwise → **skip** with a note.
