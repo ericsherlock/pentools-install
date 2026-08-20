@@ -62,9 +62,9 @@ dnsrecon    | recon        | pipx | dnsrecon    | -           | dnsrecon    | - 
 dnsenum     | recon        | pkg  | dnsenum     | -           | dnsenum     | -           | -
 dnsx        | recon        | go   | -           | -           | dnsx        | -           | go:github.com/projectdiscovery/dnsx/cmd/dnsx@latest
 fierce      | recon        | pipx | fierce      | -           | -           | -           | pipx:fierce
-amass       | recon        | pkg  | amass       | amass       | amass       | amass       | go:github.com/owasp-amass/amass/v4/...@master
+amass       | recon        | pkg  | amass       | -           | amass       | amass       | go:github.com/owasp-amass/amass/v4/...@master
 subfinder   | recon        | go   | -           | -           | subfinder   | subfinder   | go:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-assetfinder | recon        | go   | -           | -           | -           | assetfinder | go:github.com/tomnomnom/assetfinder@latest
+assetfinder | recon        | go   | -           | -           | -           | -           | go:github.com/tomnomnom/assetfinder@latest
 sublist3r   | recon        | pipx | sublist3r   | -           | -           | -           | pipx:sublist3r
 gobuster    | recon        | pkg  | gobuster    | gobuster    | gobuster    | gobuster    | go:github.com/OJ/gobuster/v3@latest
 httpx       | recon        | go   | -           | -           | -           | -           | go:github.com/projectdiscovery/httpx/cmd/httpx@latest
@@ -76,7 +76,7 @@ enum4linux-ng | recon      | pipx | enum4linux-ng | -         | -           | - 
 # ============================================================================
 # web — web application testing
 # ============================================================================
-sqlmap      | web          | pkg  | sqlmap      | sqlmap      | sqlmap      | sqlmap      | pipx:sqlmap
+sqlmap      | web          | pkg  | sqlmap      | -           | sqlmap      | sqlmap      | pipx:sqlmap
 nikto       | web          | pkg  | nikto       | nikto       | nikto       | nikto       | -
 ffuf        | web          | go   | ffuf        | -           | ffuf        | ffuf        | go:github.com/ffuf/ffuf/v2@latest
 feroxbuster | web          | pkg  | feroxbuster | -           | feroxbuster | feroxbuster | -
@@ -86,7 +86,7 @@ wfuzz       | web          | pipx | wfuzz       | -           | -           | - 
 nuclei      | web          | go   | -           | -           | nuclei      | nuclei      | go:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 katana      | web          | go   | -           | -           | -           | katana      | go:github.com/projectdiscovery/katana/cmd/katana@latest
 gau         | web          | go   | -           | -           | -           | -           | go:github.com/lc/gau/v2/cmd/gau@latest
-waybackurls | web          | go   | -           | -           | -           | waybackurls | go:github.com/tomnomnom/waybackurls@latest
+waybackurls | web          | go   | -           | -           | -           | -           | go:github.com/tomnomnom/waybackurls@latest
 gospider    | web          | go   | -           | -           | -           | -           | go:github.com/jaeles-project/gospider@latest
 arjun       | web          | pipx | arjun       | -           | -           | -           | pipx:arjun
 wpscan      | web          | gem  | wpscan      | -           | -           | -           | gem:wpscan
@@ -96,8 +96,8 @@ commix      | web          | pipx | commix      | -           | commix      | - 
 xsstrike    | web          | git  | -           | -           | -           | -           | git:https://github.com/s0md3v/XSStrike.git
 sslscan     | web          | pkg  | sslscan     | sslscan     | sslscan     | sslscan     | -
 sslyze      | web          | pipx | sslyze      | -           | -           | -           | pipx:sslyze
-testssl     | web          | pkg  | testssl.sh  | -           | testssl     | testssl     | git:https://github.com/drwetter/testssl.sh.git
-mitmproxy   | web          | pkg  | mitmproxy   | mitmproxy   | mitmproxy   | mitmproxy   | pipx:mitmproxy
+testssl     | web          | pkg  | testssl.sh  | -           | testssl.sh  | testssl     | git:https://github.com/drwetter/testssl.sh.git
+mitmproxy   | web          | pkg  | mitmproxy   | -           | mitmproxy   | mitmproxy   | pipx:mitmproxy
 zaproxy     | web          | pkg  | zaproxy     | -           | zaproxy     | -           | -
 burpsuite   | web          | pkg  | burpsuite   | -           | -           | -           | -
 
@@ -111,7 +111,7 @@ reaver      | wireless     | pkg  | reaver      | reaver      | reaver      | - 
 bully       | wireless     | pkg  | bully       | -           | bully       | -           | -
 cowpatty    | wireless     | pkg  | cowpatty    | cowpatty    | cowpatty    | -           | -
 hcxtools    | wireless     | pkg  | hcxtools    | hcxtools    | hcxtools    | hcxtools    | -
-hcxdumptool | wireless     | pkg  | hcxdumptool | hcxdumptool | hcxdumptool | -           | -
+hcxdumptool | wireless     | pkg  | hcxdumptool | -           | hcxdumptool | -           | -
 mdk4        | wireless     | pkg  | mdk4        | -           | mdk4        | -           | -
 bettercap   | wireless     | pkg  | bettercap   | bettercap   | bettercap   | bettercap   | go:github.com/bettercap/bettercap@latest
 rtl-sdr     | wireless     | pkg  | rtl-sdr     | rtl-sdr     | rtl-sdr     | librtlsdr   | - | rtl_sdr
@@ -141,7 +141,7 @@ coercer     | ad-lateral   | pipx | -           | -           | -           | - 
 hashcat     | passwords    | pkg  | hashcat     | hashcat     | hashcat     | hashcat     | -
 john        | passwords    | pkg  | john        | john        | john        | john-jumbo  | -
 hydra       | passwords    | pkg  | hydra       | hydra       | hydra       | hydra       | -
-medusa      | passwords    | pkg  | medusa      | medusa      | medusa      | medusa      | -
+medusa      | passwords    | pkg  | medusa      | medusa      | medusa      | -           | -
 ncrack      | passwords    | pkg  | ncrack      | -           | ncrack      | ncrack      | -
 crunch      | passwords    | pkg  | crunch      | -           | crunch      | -           | -
 cewl        | passwords    | pkg  | cewl        | -           | cewl        | -           | -
@@ -156,13 +156,13 @@ volatility3 | forensics-re | pipx | -           | -           | -           | - 
 binwalk     | forensics-re | pkg  | binwalk     | binwalk     | binwalk     | binwalk     | -
 foremost    | forensics-re | pkg  | foremost    | foremost    | foremost    | foremost    | -
 exiftool    | forensics-re | pkg  | libimage-exiftool-perl | perl-Image-ExifTool | perl-image-exiftool | exiftool | -
-steghide    | forensics-re | pkg  | steghide    | steghide    | steghide    | steghide    | -
+steghide    | forensics-re | pkg  | steghide    | steghide    | -           | -           | -
 stegseek    | forensics-re | pkg  | stegseek    | -           | stegseek    | -           | -
 gdb         | forensics-re | pkg  | gdb         | gdb         | gdb         | gdb         | -
 radare2     | forensics-re | pkg  | radare2     | radare2     | radare2     | radare2     | -
 rizin       | forensics-re | pkg  | rizin       | rizin       | rizin       | rizin       | -
 ghidra      | forensics-re | pkg  | ghidra      | -           | ghidra      | ghidra      | -
-apktool     | forensics-re | pkg  | apktool     | -           | apktool     | apktool     | -
+apktool     | forensics-re | pkg  | apktool     | -           | android-apktool | apktool  | -
 jadx        | forensics-re | pkg  | jadx        | -           | jadx        | jadx        | -
 sleuthkit   | forensics-re | pkg  | sleuthkit   | sleuthkit   | sleuthkit   | sleuthkit   | -
 autopsy     | forensics-re | pkg  | autopsy     | -           | -           | -           | -
@@ -181,13 +181,13 @@ holehe      | osint        | pipx | -           | -           | -           | - 
 maigret     | osint        | pipx | -           | -           | -           | -           | pipx:maigret
 photon      | osint        | git  | -           | -           | -           | -           | git:https://github.com/s0md3v/Photon.git
 metagoofil  | osint        | git  | -           | -           | -           | -           | git:https://github.com/laramies/metagoofil.git
-shodan      | osint        | pipx | shodan      | -           | -           | -           | pipx:shodan
+shodan      | osint        | pipx | python3-shodan | -        | -           | -           | pipx:shodan
 dnstwist    | osint        | pipx | dnstwist    | -           | dnstwist    | dnstwist    | pipx:dnstwist
 
 # ============================================================================
 # cloud
 # ============================================================================
-awscli      | cloud        | pkg  | awscli      | awscli      | aws-cli-v2  | awscli      | pipx:awscli | aws
+awscli      | cloud        | pkg  | awscli      | awscli2     | aws-cli-v2  | awscli      | pipx:awscli | aws
 scoutsuite  | cloud        | pipx | -           | -           | -           | -           | pipx:scoutsuite
 prowler     | cloud        | pipx | -           | -           | -           | -           | pipx:prowler
 pacu        | cloud        | pipx | -           | -           | -           | -           | pipx:pacu
@@ -199,7 +199,7 @@ kube-hunter | cloud        | pipx | -           | -           | -           | - 
 # vuln — vulnerability scanners / auditors
 # ============================================================================
 lynis       | vuln         | pkg  | lynis       | lynis       | lynis       | lynis       | -
-gvm         | vuln         | pkg  | gvm         | -           | gvm         | -           | -
+gvm         | vuln         | pkg  | gvm         | -           | -           | -           | -
 chkrootkit  | vuln         | pkg  | chkrootkit  | chkrootkit  | chkrootkit  | -           | -
 
 # ============================================================================
@@ -213,9 +213,9 @@ beef-xss    | exploitation | pkg  | beef-xss    | -           | beef        | - 
 # ============================================================================
 # post-exploit — C2, tunneling, pivoting, PowerShell
 # ============================================================================
-chisel      | post-exploit | go   | -           | -           | chisel      | chisel      | go:github.com/jpillora/chisel@latest
+chisel      | post-exploit | go   | -           | -           | chisel      | -           | go:github.com/jpillora/chisel@latest
 ligolo-ng   | post-exploit | go   | -           | -           | -           | -           | go:github.com/nicocha30/ligolo-ng/cmd/proxy@latest
-sliver      | post-exploit | pkg  | -           | -           | sliver      | sliver      | -
+sliver      | post-exploit | pkg  | -           | -           | sliver      | -           | -
 villain     | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/t3l3machus/Villain.git
 powersploit | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/PowerShellMafia/PowerSploit.git
 mimikatz    | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/gentilkiwi/mimikatz.git
@@ -223,5 +223,5 @@ mimikatz    | post-exploit | git  | -           | -           | -           | - 
 # ============================================================================
 # wordlists & payloads
 # ============================================================================
-seclists    | wordlists    | pkg  | seclists    | -           | seclists    | seclists    | git:https://github.com/danielmiessler/SecLists.git
+seclists    | wordlists    | pkg  | seclists    | -           | seclists    | -           | git:https://github.com/danielmiessler/SecLists.git
 payloadsallthethings | wordlists | git | -       | -           | -           | -           | git:https://github.com/swisskyrepo/PayloadsAllTheThings.git
