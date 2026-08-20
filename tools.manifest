@@ -173,7 +173,7 @@ pwntools    | forensics-re | pipx | -           | -           | -           | - 
 # ============================================================================
 # osint
 # ============================================================================
-theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:git+https://github.com/laramies/theHarvester.git | theHarvester
+theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:git+https://github.com/laramies/theHarvester.git@4.11.1 | theHarvester
 recon-ng    | osint        | pkg  | recon-ng    | -           | recon-ng    | -           | pipx:recon-ng
 spiderfoot  | osint        | pipx | spiderfoot  | -           | -           | -           | pipx:spiderfoot
 sherlock    | osint        | pipx | sherlock    | -           | -           | -           | pipx:sherlock-project
