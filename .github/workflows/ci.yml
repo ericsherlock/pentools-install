@@ -14,9 +14,9 @@ jobs:
       # Run from the official image instead of apt-get, which is a flaky
       # network dependency on the runner. The image ships a pinned shellcheck.
       - name: Report (all findings, non-blocking)
-        run: docker run --rm -v "$PWD":/mnt -w /mnt koalaman/shellcheck:stable -x pentools_install lib/*.sh || true
+        run: docker run --rm -v "$PWD":/mnt -w /mnt koalaman/shellcheck:stable -x pentools_install lib/*.sh ci/*.sh || true
       - name: Gate (fail on errors only)
-        run: docker run --rm -v "$PWD":/mnt -w /mnt koalaman/shellcheck:stable --severity=error -x pentools_install lib/*.sh
+        run: docker run --rm -v "$PWD":/mnt -w /mnt koalaman/shellcheck:stable --severity=error -x pentools_install lib/*.sh ci/*.sh
 
   syntax:
     name: Syntax (bash -n)
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Parse all scripts
         run: |
-          for f in pentools_install lib/*.sh; do
+          for f in pentools_install lib/*.sh ci/*.sh; do
             echo "bash -n $f"
             bash -n "$f"
           done

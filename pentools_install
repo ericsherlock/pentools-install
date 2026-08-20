@@ -24,6 +24,8 @@ PT_ALL=0
 PT_ONLY=""          # comma-separated category allowlist (from --only)
 PT_SKIP=""          # comma-separated tool-name denylist (from --skip)
 PT_SELECTED=""      # resolved comma-separated category selection
+PT_SAMPLE=0         # install only first N tools per category (0 = all)
+PT_SAMPLE_TOOLS=""  # resolved space-separated sampled tool names
 PT_GIT_DIR="$SCRIPT_DIR/pentesting-tools"
 
 # Detection globals (populated by detect_platform)
@@ -59,6 +61,8 @@ Options:
   --all             Install every category (no interactive menu).
   --only <cats>     Install only these categories (comma separated).
   --skip <tools>    Skip these tools by name (comma separated).
+  --sample <N>      Install only the first N tools per selected category
+                    (0 = all). Used by the CI smoke tier.
   --dry-run         Show what would be installed without changing anything.
   --yes, -y         Assume "yes" to prompts; install all if no --only given.
   --list            List all tools in the manifest and exit.
@@ -79,6 +83,8 @@ parse_args() {
             --only=*)     PT_ONLY="${1#*=}" ;;
             --skip)       shift; [ "$#" -gt 0 ] || die "--skip needs an argument"; PT_SKIP="$1" ;;
             --skip=*)     PT_SKIP="${1#*=}" ;;
+            --sample)     shift; [ "$#" -gt 0 ] || die "--sample needs a number"; PT_SAMPLE="$1" ;;
+            --sample=*)   PT_SAMPLE="${1#*=}" ;;
             --dry-run)    PT_DRY_RUN=1 ;;
             --yes|-y)     PT_ASSUME_YES=1 ;;
             --list)       DO_LIST=1 ;;
@@ -171,6 +177,15 @@ install_cb() {
     if [ "$R_CAT" != "base" ] && ! csv_contains "$PT_SELECTED" "$R_CAT"; then
         COUNT_DESELECTED=$((COUNT_DESELECTED + 1))
         return 0
+    fi
+
+    # Sample mode (--sample N): keep only the first N tools per category.
+    # "base" always installs (fallbacks depend on it).
+    if [ "${PT_SAMPLE:-0}" -gt 0 ] && [ "$R_CAT" != "base" ]; then
+        case " $PT_SAMPLE_TOOLS " in
+            *" $R_NAME "*) : ;;
+            *) COUNT_DESELECTED=$((COUNT_DESELECTED + 1)); return 0 ;;
+        esac
     fi
 
     # Explicit per-tool skip list (--skip).
@@ -266,9 +281,18 @@ main() {
         exit 0
     fi
 
+    # Sanitize --sample (non-numeric -> 0 = no sampling).
+    case "$PT_SAMPLE" in ''|*[!0-9]*) PT_SAMPLE=0 ;; esac
+
     log "=== pentools_install starting ==="
     preflight
     resolve_selection
+
+    if [ "$PT_SAMPLE" -gt 0 ]; then
+        compute_sample_set
+        log "Sample mode: first $PT_SAMPLE tool(s) per category"
+    fi
+
     confirm_install
 
     if [ "$PT_DRY_RUN" -eq 1 ]; then

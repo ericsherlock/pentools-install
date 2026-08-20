@@ -1,0 +1,123 @@
+name: Install Test
+
+# Real installs (not dry-run) of each category on each target, gated on the
+# installer reporting failed=0. Sharded distro x category so every job stays
+# small (well under the runner disk/time limits).
+#
+#   - Manual button (Actions -> Install Test -> Run) with a smoke/full choice.
+#   - Weekly cron (Mondays 06:00 UTC), always smoke.
+#
+# Free on this public repo (GitHub-hosted Linux + macOS runners bill nothing
+# for public repositories).
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "smoke = 1 tool/category, full = all tools"
+        type: choice
+        options: [smoke, full]
+        default: smoke
+  schedule:
+    - cron: "0 6 * * 1"
+
+# Resolved run mode: dispatch uses the chosen input; scheduled runs are smoke.
+# (Passed to the script, which maps smoke -> "--sample 1", full -> all tools.)
+env:
+  MODE: ${{ inputs.mode || 'smoke' }}
+
+concurrency:
+  group: install-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install-test:
+    name: ${{ matrix.target }} / ${{ matrix.category }}
+    runs-on: ${{ matrix.target == 'macos' && 'macos-latest' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [kali, debian, fedora, arch, macos]
+        category:
+          - recon
+          - web
+          - wireless
+          - ad-lateral
+          - passwords
+          - forensics-re
+          - osint
+          - cloud
+          - vuln
+          - exploitation
+          - post-exploit
+          - wordlists
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install & smoke-test
+        id: run
+        continue-on-error: true
+        run: bash ci/run-install-test.sh "${{ matrix.target }}" "${{ matrix.category }}" "$MODE"
+
+      - name: Record result
+        if: always()
+        run: |
+          mkdir -p results
+          echo "${{ matrix.target }} | ${{ matrix.category }} | ${{ steps.run.outcome }}" \
+            > "results/${{ matrix.target }}-${{ matrix.category }}.txt"
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.target }}-${{ matrix.category }}
+          path: results/*.txt
+          if-no-files-found: warn
+
+      - name: Upload install log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-${{ matrix.target }}-${{ matrix.category }}
+          path: out.txt
+          if-no-files-found: ignore
+
+      - name: Fail job if install failed
+        if: steps.run.outcome == 'failure'
+        run: exit 1
+
+  summary:
+    name: Aggregate results
+    needs: install-test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all result files
+        uses: actions/download-artifact@v4
+        with:
+          pattern: result-*
+          path: results
+          merge-multiple: true
+
+      - name: Build matrix report
+        run: |
+          {
+            echo "## Install-test results (${{ inputs.mode || 'smoke' }})"
+            echo ""
+            echo "| Target | Category | Result |"
+            echo "|--------|----------|--------|"
+            for f in results/*.txt; do
+              [ -f "$f" ] || continue
+              t=$(cut -d'|' -f1 "$f" | tr -d ' ')
+              c=$(cut -d'|' -f2 "$f" | tr -d ' ')
+              r=$(cut -d'|' -f3 "$f" | tr -d ' ')
+              icon="✅"; [ "$r" = "failure" ] && icon="❌"
+              echo "| $t | $c | $icon $r |"
+            done | sort
+          } >> "$GITHUB_STEP_SUMMARY"
+          # Fail the summary job if any shard failed.
+          if grep -rq 'failure' results/ 2>/dev/null; then
+            echo "One or more shards failed — see the table above."
+            exit 1
+          fi
+          echo "All shards passed."
