@@ -51,7 +51,7 @@ naabu       | recon        | go   | -           | -           | naabu       | - 
 arp-scan    | recon        | pkg  | arp-scan    | arp-scan    | arp-scan    | arp-scan    | -
 netdiscover | recon        | pkg  | netdiscover | -           | netdiscover | -           | -
 fping       | recon        | pkg  | fping       | fping       | fping       | fping       | -
-wireshark   | recon        | pkg  | wireshark   | wireshark   | wireshark   | wireshark   | -
+wireshark   | recon        | pkg  | wireshark   | wireshark   | wireshark-cli | wireshark | -
 tcpdump     | recon        | pkg  | tcpdump     | tcpdump     | tcpdump     | tcpdump     | -
 netcat      | recon        | pkg  | netcat-traditional | nmap-ncat | openbsd-netcat | netcat | -
 socat       | recon        | pkg  | socat       | socat       | socat       | socat       | -
@@ -71,13 +71,13 @@ httpx       | recon        | go   | -           | -           | -           | - 
 whatweb     | recon        | pkg  | whatweb     | -           | whatweb     | -           | -
 wafw00f     | recon        | pipx | wafw00f     | -           | -           | -           | pipx:wafw00f
 onesixtyone | recon        | pkg  | onesixtyone | -           | onesixtyone | -           | -
-enum4linux-ng | recon      | pipx | enum4linux-ng | -         | -           | -           | pipx:enum4linux-ng
+enum4linux-ng | recon      | pipx | enum4linux-ng | -         | -           | -           | git:https://github.com/cddmp/enum4linux-ng.git
 
 # ============================================================================
 # web — web application testing
 # ============================================================================
 sqlmap      | web          | pkg  | sqlmap      | -           | sqlmap      | sqlmap      | pipx:sqlmap
-nikto       | web          | pkg  | nikto       | nikto       | nikto       | nikto       | -
+nikto       | web          | pkg  | nikto       | nikto       | nikto       | nikto       | git:https://github.com/sullo/nikto.git
 ffuf        | web          | go   | ffuf        | -           | ffuf        | ffuf        | go:github.com/ffuf/ffuf/v2@latest
 feroxbuster | web          | pkg  | feroxbuster | -           | feroxbuster | feroxbuster | -
 dirsearch   | web          | pipx | dirsearch   | -           | -           | -           | pipx:dirsearch
@@ -130,7 +130,7 @@ certipy     | ad-lateral   | pipx | -           | -           | -           | - 
 mitm6       | ad-lateral   | pipx | mitm6       | -           | -           | -           | pipx:mitm6
 ldapdomaindump | ad-lateral | pipx | -          | -           | -           | -           | pipx:ldapdomaindump
 smbmap      | ad-lateral   | pipx | smbmap      | -           | -           | -           | pipx:smbmap
-enum4linux  | ad-lateral   | pkg  | enum4linux  | -           | enum4linux  | -           | -
+enum4linux  | ad-lateral   | pkg  | enum4linux  | -           | enum4linux  | -           | git:https://github.com/CiscoCXSecurity/enum4linux.git
 pypykatz    | ad-lateral   | pipx | -           | -           | -           | -           | pipx:pypykatz
 lsassy      | ad-lateral   | pipx | -           | -           | -           | -           | pipx:lsassy
 coercer     | ad-lateral   | pipx | -           | -           | -           | -           | pipx:coercer
@@ -145,7 +145,7 @@ medusa      | passwords    | pkg  | medusa      | medusa      | medusa      | - 
 ncrack      | passwords    | pkg  | ncrack      | -           | ncrack      | ncrack      | -
 crunch      | passwords    | pkg  | crunch      | -           | crunch      | -           | -
 cewl        | passwords    | pkg  | cewl        | -           | cewl        | -           | -
-patator     | passwords    | pipx | patator     | -           | -           | -           | pipx:patator
+patator     | passwords    | pipx | patator     | -           | -           | -           | git:https://github.com/lanjelot/patator.git
 hashid      | passwords    | pipx | hashid      | -           | hashid      | -           | pipx:hashID
 name-that-hash | passwords | pipx | -           | -           | -           | -           | pipx:name-that-hash | nth
 
@@ -174,8 +174,8 @@ pwntools    | forensics-re | pipx | -           | -           | -           | - 
 # osint
 # ============================================================================
 theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:git+https://github.com/laramies/theHarvester.git@4.11.1 | theHarvester
-recon-ng    | osint        | pkg  | recon-ng    | -           | recon-ng    | -           | pipx:recon-ng
-spiderfoot  | osint        | pipx | spiderfoot  | -           | -           | -           | pipx:spiderfoot
+recon-ng    | osint        | pkg  | recon-ng    | -           | recon-ng    | -           | git:https://github.com/lanmaster53/recon-ng.git
+spiderfoot  | osint        | pipx | spiderfoot  | -           | -           | -           | git:https://github.com/smicallef/spiderfoot.git
 sherlock    | osint        | pipx | sherlock    | -           | -           | -           | pipx:sherlock-project
 holehe      | osint        | pipx | -           | -           | -           | -           | pipx:holehe
 maigret     | osint        | pipx | -           | -           | -           | -           | pipx:maigret
@@ -192,7 +192,7 @@ scoutsuite  | cloud        | pipx | -           | -           | -           | - 
 prowler     | cloud        | pipx | -           | -           | -           | -           | pipx:prowler
 pacu        | cloud        | pipx | -           | -           | -           | -           | pipx:pacu
 cloud-enum  | cloud        | git  | -           | -           | -           | -           | git:https://github.com/initstring/cloud_enum.git
-trivy       | cloud        | pkg  | -           | -           | trivy       | trivy       | go:github.com/aquasecurity/trivy/cmd/trivy@latest
+trivy       | cloud        | pkg  | -           | -           | trivy       | trivy       | -
 kube-hunter | cloud        | pipx | -           | -           | -           | -           | pipx:kube-hunter
 
 # ============================================================================
