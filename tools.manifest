@@ -150,7 +150,7 @@ medusa      | passwords    | pkg  | medusa      | medusa      | medusa      | - 
 ncrack      | passwords    | pkg  | ncrack      | -           | ncrack      | ncrack      | -
 crunch      | passwords    | pkg  | crunch      | -           | crunch      | -           | -
 cewl        | passwords    | pkg  | cewl        | -           | cewl        | -           | -
-patator     | passwords    | pipx | patator     | -           | -           | -           | git:https://github.com/lanjelot/patator.git::patator.py
+patator     | passwords    | pipx | patator     | -           | -           | -           | git:https://github.com/lanjelot/patator.git
 hashid      | passwords    | pipx | hashid      | -           | hashid      | -           | pipx:hashID
 name-that-hash | passwords | pipx | -           | -           | -           | -           | pipx:name-that-hash | nth
 
