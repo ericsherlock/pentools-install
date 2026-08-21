@@ -82,7 +82,7 @@ ffuf        | web          | go   | ffuf        | -           | ffuf        | ff
 feroxbuster | web          | pkg  | feroxbuster | -           | feroxbuster | feroxbuster | -
 dirsearch   | web          | pipx | dirsearch   | -           | -           | -           | pipx:dirsearch
 dirb        | web          | pkg  | dirb        | -           | dirb        | -           | -
-wfuzz       | web          | pipx | wfuzz       | -           | -           | -           | pipx:wfuzz
+wfuzz       | web          | pkg  | wfuzz       | -           | -           | -           | -
 nuclei      | web          | go   | -           | -           | nuclei      | nuclei      | go:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 katana      | web          | go   | -           | -           | -           | katana      | go:github.com/projectdiscovery/katana/cmd/katana@latest
 gau         | web          | go   | -           | -           | -           | -           | go:github.com/lc/gau/v2/cmd/gau@latest
@@ -113,7 +113,7 @@ cowpatty    | wireless     | pkg  | cowpatty    | cowpatty    | cowpatty    | - 
 hcxtools    | wireless     | pkg  | hcxtools    | hcxtools    | hcxtools    | hcxtools    | -
 hcxdumptool | wireless     | pkg  | hcxdumptool | -           | hcxdumptool | -           | -
 mdk4        | wireless     | pkg  | mdk4        | -           | mdk4        | -           | -
-bettercap   | wireless     | pkg  | bettercap   | bettercap   | bettercap   | bettercap   | go:github.com/bettercap/bettercap@latest
+bettercap   | wireless     | pkg  | bettercap   | -           | bettercap   | bettercap   | go:github.com/bettercap/bettercap@latest
 rtl-sdr     | wireless     | pkg  | rtl-sdr     | rtl-sdr     | rtl-sdr     | librtlsdr   | - | rtl_sdr
 gqrx        | wireless     | pkg  | gqrx-sdr    | gqrx        | gqrx        | -           | -
 

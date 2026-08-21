@@ -30,14 +30,11 @@ esac
 # separated, keyed by target).
 expected_fail_for() {
     case "$1" in
-        # Kali-only or removed-from-Debian-trixie, no cross-distro fallback,
-        # plus trivy (needs the Aqua repo/installer; go install unsupported).
-        debian) echo "metasploit-framework beef-xss gvm burpsuite zaproxy feroxbuster ghidra jadx kismet radare2 rizin trivy" ;;
-        # trivy: native only (arch/brew); needs the Aqua repo elsewhere.
-        kali)   echo "trivy" ;;
-        fedora) echo "trivy" ;;
-        # wfuzz: pycurl fails to build against Homebrew's bleeding-edge Python.
-        macos)  echo "wfuzz" ;;
+        # Kali-only or removed-from-Debian-trixie, with a native cell that is
+        # attempted and fails, and no cross-distro fallback. (Tools that are
+        # simply unpackaged with a "-" native cell just skip, so they are not
+        # listed here — e.g. trivy, wfuzz.)
+        debian) echo "metasploit-framework beef-xss gvm burpsuite zaproxy feroxbuster ghidra jadx kismet radare2 rizin" ;;
         *)      echo "" ;;
     esac
 }
@@ -101,7 +98,7 @@ case "$target" in
         ;;
     fedora)
         run_in_container "fedora:latest" \
-            "dnf install -y gawk git golang rubygems ruby-devel curl pipx findutils gcc gcc-c++ python3-devel cargo cmake libcurl-devel libpcap-devel"
+            "dnf install -y gawk git golang rubygems ruby-devel curl pipx findutils gcc gcc-c++ python3-devel cargo cmake libcurl-devel libpcap-devel libusb1-devel libnetfilter_queue-devel"
         ;;
     arch)
         run_in_container "archlinux:latest" \
