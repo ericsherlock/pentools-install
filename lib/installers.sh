@@ -138,15 +138,24 @@ _git_make_launcher() {
         return 0
     fi
 
-    # Python tools: isolate their requirements in a venv.
-    if [ -f "$dest/requirements.txt" ] && command -v python3 >/dev/null 2>&1; then
-        if python3 -m venv "$dest/.venv" >/dev/null 2>&1; then
-            "$dest/.venv/bin/pip" install --quiet --upgrade pip >/dev/null 2>&1 || true
-            if "$dest/.venv/bin/pip" install --quiet -r "$dest/requirements.txt" >/dev/null 2>&1; then
-                py="$dest/.venv/bin/python"
-            else
-                log "WARN: $name requirements failed; launcher will use system python3"
-            fi
+    # Python tools: isolate their requirements in a venv. If the deps can't be
+    # installed the tool won't run, so degrade to clone-only rather than write
+    # a launcher that errors out.
+    if [ -f "$dest/requirements.txt" ]; then
+        if ! command -v python3 >/dev/null 2>&1; then
+            log "WARN: $name needs python3 for its requirements; left as clone-only"
+            return 0
+        fi
+        if ! python3 -m venv "$dest/.venv" >/dev/null 2>&1; then
+            log "WARN: $name venv creation failed; left as clone-only"
+            return 0
+        fi
+        "$dest/.venv/bin/pip" install --quiet --upgrade pip >/dev/null 2>&1 || true
+        if "$dest/.venv/bin/pip" install --quiet -r "$dest/requirements.txt" >/dev/null 2>&1; then
+            py="$dest/.venv/bin/python"
+        else
+            log "WARN: $name requirements failed to install; left as clone-only"
+            return 0
         fi
     fi
 
