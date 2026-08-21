@@ -90,11 +90,11 @@ run_in_container() {
 case "$target" in
     kali)
         run_in_container "kalilinux/kali-rolling" \
-            "apt-get update && apt-get install -y gawk git golang-go ruby-full ruby-dev curl pipx findutils build-essential python3-dev cargo cmake libcurl4-openssl-dev libpcap-dev"
+            "apt-get update && apt-get install -y gawk git golang-go ruby-full ruby-dev curl pipx findutils build-essential python3-dev python3-venv cargo cmake libcurl4-openssl-dev libpcap-dev"
         ;;
     debian)
         run_in_container "debian:latest" \
-            "apt-get update && apt-get install -y gawk git golang-go ruby-full ruby-dev curl pipx findutils build-essential python3-dev cargo cmake libcurl4-openssl-dev libpcap-dev"
+            "apt-get update && apt-get install -y gawk git golang-go ruby-full ruby-dev curl pipx findutils build-essential python3-dev python3-venv cargo cmake libcurl4-openssl-dev libpcap-dev"
         ;;
     fedora)
         run_in_container "fedora:latest" \

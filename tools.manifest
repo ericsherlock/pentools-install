@@ -16,7 +16,12 @@
 #   apt/dnf/pacman/brew
 #            native package name for that manager, or "-" if not packaged there
 #   fallback used when no native package exists for the detected manager;
-#            "type:spec" -> pipx:NAME | gem:NAME | go:MODULE@ver | git:URL
+#            "type:spec" -> pipx:NAME | gem:NAME | go:MODULE@ver |
+#            git:URL[::ENTRY] | binary:[BIN@]URL
+#            git:URL clones only (data sets, Windows/PowerShell tools);
+#            git:URL::ENTRY also installs requirements.txt into a venv (when
+#            present) and writes a PATH launcher (named after check/name) that
+#            runs ENTRY, a path relative to the clone.
 #
 # Resolution (see resolve_tool in the engine): a real native package for the
 # detected manager wins; otherwise the fallback spec is used; otherwise the
@@ -71,13 +76,13 @@ httpx       | recon        | go   | -           | -           | -           | - 
 whatweb     | recon        | pkg  | whatweb     | -           | whatweb     | -           | -
 wafw00f     | recon        | pipx | wafw00f     | -           | -           | -           | pipx:wafw00f
 onesixtyone | recon        | pkg  | onesixtyone | -           | onesixtyone | -           | -
-enum4linux-ng | recon      | pipx | enum4linux-ng | -         | -           | -           | git:https://github.com/cddmp/enum4linux-ng.git
+enum4linux-ng | recon      | pipx | enum4linux-ng | -         | -           | -           | git:https://github.com/cddmp/enum4linux-ng.git::enum4linux-ng.py
 
 # ============================================================================
 # web — web application testing
 # ============================================================================
 sqlmap      | web          | pkg  | sqlmap      | -           | sqlmap      | sqlmap      | pipx:sqlmap
-nikto       | web          | pkg  | nikto       | nikto       | nikto       | nikto       | git:https://github.com/sullo/nikto.git
+nikto       | web          | pkg  | nikto       | nikto       | nikto       | nikto       | git:https://github.com/sullo/nikto.git::program/nikto.pl
 ffuf        | web          | go   | ffuf        | -           | ffuf        | ffuf        | go:github.com/ffuf/ffuf/v2@latest
 feroxbuster | web          | pkg  | feroxbuster | -           | feroxbuster | feroxbuster | -
 dirsearch   | web          | pipx | dirsearch   | -           | -           | -           | pipx:dirsearch
@@ -90,13 +95,13 @@ waybackurls | web          | go   | -           | -           | -           | - 
 gospider    | web          | go   | -           | -           | -           | -           | go:github.com/jaeles-project/gospider@latest
 arjun       | web          | pipx | arjun       | -           | -           | -           | pipx:arjun
 wpscan      | web          | gem  | wpscan      | -           | -           | -           | gem:wpscan
-joomscan    | web          | pkg  | joomscan    | -           | -           | -           | git:https://github.com/OWASP/joomscan.git
+joomscan    | web          | pkg  | joomscan    | -           | -           | -           | git:https://github.com/OWASP/joomscan.git::joomscan.pl
 droopescan  | web          | pipx | -           | -           | -           | -           | pipx:droopescan
 commix      | web          | pipx | commix      | -           | commix      | -           | pipx:commix
-xsstrike    | web          | git  | -           | -           | -           | -           | git:https://github.com/s0md3v/XSStrike.git
+xsstrike    | web          | git  | -           | -           | -           | -           | git:https://github.com/s0md3v/XSStrike.git::xsstrike.py
 sslscan     | web          | pkg  | sslscan     | sslscan     | sslscan     | sslscan     | -
 sslyze      | web          | pipx | sslyze      | -           | -           | -           | pipx:sslyze
-testssl     | web          | pkg  | testssl.sh  | -           | testssl.sh  | testssl     | git:https://github.com/drwetter/testssl.sh.git
+testssl     | web          | pkg  | testssl.sh  | -           | testssl.sh  | testssl     | git:https://github.com/drwetter/testssl.sh.git::testssl.sh
 mitmproxy   | web          | pkg  | mitmproxy   | -           | mitmproxy   | mitmproxy   | pipx:mitmproxy
 zaproxy     | web          | pkg  | zaproxy     | -           | zaproxy     | -           | -
 burpsuite   | web          | pkg  | burpsuite   | -           | -           | -           | -
@@ -124,13 +129,13 @@ netexec     | ad-lateral   | pipx | -           | -           | -           | - 
 impacket    | ad-lateral   | pipx | impacket-scripts | -      | impacket    | -           | pipx:impacket
 bloodhound-python | ad-lateral | pipx | -        | -           | -           | -           | pipx:bloodhound-ce
 evil-winrm  | ad-lateral   | gem  | evil-winrm  | -           | -           | -           | gem:evil-winrm
-responder   | ad-lateral   | pkg  | responder   | -           | responder   | -           | git:https://github.com/lgandx/Responder.git
+responder   | ad-lateral   | pkg  | responder   | -           | responder   | -           | git:https://github.com/lgandx/Responder.git::Responder.py
 kerbrute    | ad-lateral   | go   | -           | -           | -           | -           | go:github.com/ropnop/kerbrute@latest
 certipy     | ad-lateral   | pipx | -           | -           | -           | -           | pipx:certipy-ad
 mitm6       | ad-lateral   | pipx | mitm6       | -           | -           | -           | pipx:mitm6
 ldapdomaindump | ad-lateral | pipx | -          | -           | -           | -           | pipx:ldapdomaindump
 smbmap      | ad-lateral   | pipx | smbmap      | -           | -           | -           | pipx:smbmap
-enum4linux  | ad-lateral   | pkg  | enum4linux  | -           | enum4linux  | -           | git:https://github.com/CiscoCXSecurity/enum4linux.git
+enum4linux  | ad-lateral   | pkg  | enum4linux  | -           | enum4linux  | -           | git:https://github.com/CiscoCXSecurity/enum4linux.git::enum4linux.pl
 pypykatz    | ad-lateral   | pipx | -           | -           | -           | -           | pipx:pypykatz
 lsassy      | ad-lateral   | pipx | -           | -           | -           | -           | pipx:lsassy
 coercer     | ad-lateral   | pipx | -           | -           | -           | -           | pipx:coercer
@@ -145,7 +150,7 @@ medusa      | passwords    | pkg  | medusa      | medusa      | medusa      | - 
 ncrack      | passwords    | pkg  | ncrack      | -           | ncrack      | ncrack      | -
 crunch      | passwords    | pkg  | crunch      | -           | crunch      | -           | -
 cewl        | passwords    | pkg  | cewl        | -           | cewl        | -           | -
-patator     | passwords    | pipx | patator     | -           | -           | -           | git:https://github.com/lanjelot/patator.git
+patator     | passwords    | pipx | patator     | -           | -           | -           | git:https://github.com/lanjelot/patator.git::patator.py
 hashid      | passwords    | pipx | hashid      | -           | hashid      | -           | pipx:hashID
 name-that-hash | passwords | pipx | -           | -           | -           | -           | pipx:name-that-hash | nth
 
@@ -174,13 +179,13 @@ pwntools    | forensics-re | pipx | -           | -           | -           | - 
 # osint
 # ============================================================================
 theharvester | osint       | pipx | theharvester | -          | -           | -           | pipx:git+https://github.com/laramies/theHarvester.git@4.11.1 | theHarvester
-recon-ng    | osint        | pkg  | recon-ng    | -           | recon-ng    | -           | git:https://github.com/lanmaster53/recon-ng.git
-spiderfoot  | osint        | pipx | spiderfoot  | -           | -           | -           | git:https://github.com/smicallef/spiderfoot.git
+recon-ng    | osint        | pkg  | recon-ng    | -           | recon-ng    | -           | git:https://github.com/lanmaster53/recon-ng.git::recon-ng
+spiderfoot  | osint        | pipx | spiderfoot  | -           | -           | -           | git:https://github.com/smicallef/spiderfoot.git::sf.py
 sherlock    | osint        | pipx | sherlock    | -           | -           | -           | pipx:sherlock-project
 holehe      | osint        | pipx | -           | -           | -           | -           | pipx:holehe
 maigret     | osint        | pipx | -           | -           | -           | -           | pipx:maigret
-photon      | osint        | git  | -           | -           | -           | -           | git:https://github.com/s0md3v/Photon.git
-metagoofil  | osint        | git  | -           | -           | -           | -           | git:https://github.com/laramies/metagoofil.git
+photon      | osint        | git  | -           | -           | -           | -           | git:https://github.com/s0md3v/Photon.git::photon.py
+metagoofil  | osint        | git  | -           | -           | -           | -           | git:https://github.com/laramies/metagoofil.git::metagoofil.py
 shodan      | osint        | pipx | python3-shodan | -        | -           | -           | pipx:shodan
 dnstwist    | osint        | pipx | dnstwist    | -           | dnstwist    | dnstwist    | pipx:dnstwist
 
@@ -191,7 +196,7 @@ awscli      | cloud        | pkg  | awscli      | awscli2     | aws-cli-v2  | aw
 scoutsuite  | cloud        | pipx | -           | -           | -           | -           | pipx:scoutsuite
 prowler     | cloud        | pipx | -           | -           | -           | -           | pipx:prowler
 pacu        | cloud        | pipx | -           | -           | -           | -           | pipx:pacu
-cloud-enum  | cloud        | git  | -           | -           | -           | -           | git:https://github.com/initstring/cloud_enum.git
+cloud-enum  | cloud        | git  | -           | -           | -           | -           | git:https://github.com/initstring/cloud_enum.git::cloud_enum.py
 trivy       | cloud        | pkg  | -           | -           | trivy       | trivy       | -
 kube-hunter | cloud        | pipx | -           | -           | -           | -           | pipx:kube-hunter
 
@@ -206,8 +211,8 @@ chkrootkit  | vuln         | pkg  | chkrootkit  | chkrootkit  | chkrootkit  | - 
 # exploitation — frameworks
 # ============================================================================
 metasploit-framework | exploitation | pkg | metasploit-framework | - | metasploit | metasploit | - | msfconsole
-exploitdb   | exploitation | pkg  | exploitdb   | -           | exploitdb   | exploitdb   | git:https://gitlab.com/exploit-database/exploitdb.git | searchsploit
-setoolkit   | exploitation | pkg  | set         | -           | set         | -           | git:https://github.com/trustedsec/social-engineer-toolkit.git
+exploitdb   | exploitation | pkg  | exploitdb   | -           | exploitdb   | exploitdb   | git:https://gitlab.com/exploit-database/exploitdb.git::searchsploit | searchsploit
+setoolkit   | exploitation | pkg  | set         | -           | set         | -           | git:https://github.com/trustedsec/social-engineer-toolkit.git::setoolkit
 beef-xss    | exploitation | pkg  | beef-xss    | -           | beef        | -           | -
 
 # ============================================================================
@@ -216,7 +221,7 @@ beef-xss    | exploitation | pkg  | beef-xss    | -           | beef        | - 
 chisel      | post-exploit | go   | -           | -           | chisel      | -           | go:github.com/jpillora/chisel@latest
 ligolo-ng   | post-exploit | go   | -           | -           | -           | -           | go:github.com/nicocha30/ligolo-ng/cmd/proxy@latest
 sliver      | post-exploit | pkg  | -           | -           | sliver      | -           | -
-villain     | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/t3l3machus/Villain.git
+villain     | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/t3l3machus/Villain.git::Villain.py
 powersploit | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/PowerShellMafia/PowerSploit.git
 mimikatz    | post-exploit | git  | -           | -           | -           | -           | git:https://github.com/gentilkiwi/mimikatz.git
 
