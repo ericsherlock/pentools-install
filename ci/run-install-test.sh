@@ -25,11 +25,19 @@ case "$mode" in
 esac
 
 # Tools with no install path on a given target — genuinely absent from that
-# ecosystem with no cross-distro fallback. A shard is tolerated ONLY if every
-# failing tool is on this list (space-separated, keyed by target).
+# ecosystem with no cross-distro fallback (verified from the full-tier run). A
+# shard is tolerated ONLY if every failing tool is on this list (space-
+# separated, keyed by target).
 expected_fail_for() {
     case "$1" in
-        debian) echo "metasploit-framework" ;;   # Kali-only; not in Debian repos
+        # Kali-only or removed-from-Debian-trixie, no cross-distro fallback,
+        # plus trivy (needs the Aqua repo/installer; go install unsupported).
+        debian) echo "metasploit-framework beef-xss gvm burpsuite zaproxy feroxbuster ghidra jadx kismet radare2 rizin trivy" ;;
+        # trivy: native only (arch/brew); needs the Aqua repo elsewhere.
+        kali)   echo "trivy" ;;
+        fedora) echo "trivy" ;;
+        # wfuzz: pycurl fails to build against Homebrew's bleeding-edge Python.
+        macos)  echo "wfuzz" ;;
         *)      echo "" ;;
     esac
 }
@@ -79,24 +87,25 @@ run_in_container() {
 }
 
 # Toolchains needed so fallbacks work: go (go:), ruby/gems (gem:), git (git:),
-# pipx (pipx:), plus a C/Rust build chain for pipx tools that build from source
-# (e.g. NetExec's crypto deps).
+# pipx (pipx:), plus a C/Rust build chain and dev headers for tools that build
+# from source: cmake (pwntools), libcurl+headers (wfuzz/pycurl), ruby headers
+# (wpscan gem native ext), libpcap headers (bettercap go build).
 case "$target" in
     kali)
         run_in_container "kalilinux/kali-rolling" \
-            "apt-get update && apt-get install -y gawk git golang-go ruby-full curl pipx findutils build-essential python3-dev cargo"
+            "apt-get update && apt-get install -y gawk git golang-go ruby-full ruby-dev curl pipx findutils build-essential python3-dev cargo cmake libcurl4-openssl-dev libpcap-dev"
         ;;
     debian)
         run_in_container "debian:latest" \
-            "apt-get update && apt-get install -y gawk git golang-go ruby-full curl pipx findutils build-essential python3-dev cargo"
+            "apt-get update && apt-get install -y gawk git golang-go ruby-full ruby-dev curl pipx findutils build-essential python3-dev cargo cmake libcurl4-openssl-dev libpcap-dev"
         ;;
     fedora)
         run_in_container "fedora:latest" \
-            "dnf install -y gawk git golang rubygems curl pipx findutils gcc python3-devel cargo"
+            "dnf install -y gawk git golang rubygems ruby-devel curl pipx findutils gcc gcc-c++ python3-devel cargo cmake libcurl-devel libpcap-devel"
         ;;
     arch)
         run_in_container "archlinux:latest" \
-            "pacman -Sy --noconfirm --needed gawk git go ruby curl python-pipx findutils base-devel rust && $blackarch_strap"
+            "pacman -Sy --noconfirm --needed gawk git go ruby curl python-pipx findutils base-devel rust cmake libpcap && $blackarch_strap"
         ;;
     macos)
         # Native run on the macOS runner (Homebrew, no root). Ensure the go
