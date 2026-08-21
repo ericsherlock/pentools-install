@@ -163,6 +163,22 @@ Validate your change with:
 
 ---
 
+## Git-based tools
+
+Tools installed from a git clone (when they aren't packaged for your manager)
+land in `pentesting-tools/`. Where the manifest gives an entry point
+(`git:URL::ENTRY`), the installer also:
+
+- creates an isolated **venv** from the tool's `requirements.txt` (if present),
+  so Python deps don't touch your system, and
+- writes a small **launcher** onto `PATH` (`/usr/local/bin`, override with
+  `PT_BINDIR`) so the tool is runnable by name.
+
+Data sets (SecLists, PayloadsAllTheThings) and Windows/PowerShell tools
+(Mimikatz, PowerSploit) are cloned only, and say so in the log.
+
+---
+
 ## Logging
 
 Every action is timestamped and written to `install_log` in the script
@@ -175,6 +191,7 @@ command so you can re-run it by hand.
 
 - One of: `apt` / `dnf` / `pacman` / `brew`.
 - `bash`, `awk`, `git`, and core utilities.
+- `python3` with `venv` for git-based Python tools (e.g. `python3-venv` on Debian).
 - Root privileges for the native Linux managers (not for Homebrew).
 - An internet connection.
 

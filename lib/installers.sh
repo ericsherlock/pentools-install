@@ -84,18 +84,92 @@ go_install() {
     run "go install $1"
 }
 
-# git_install <url> : clone into $PT_GIT_DIR, or 'git pull' if it already
-# exists (idempotent). Does not build — clone-only, as the legacy script did.
+# git_install <spec> : clone into $PT_GIT_DIR (or 'git pull' if present).
+# Spec forms:
+#   git:URL           -> clone only (data sets, PowerShell/Windows tools)
+#   git:URL::ENTRY    -> clone, install requirements.txt into a venv when
+#                        present, and write a PATH launcher (named after the
+#                        tool's check/name) that runs ENTRY.
+# The launcher goes in $PT_BINDIR (default /usr/local/bin). Uses the global
+# R_CHECK/R_NAME set by resolve_tool for the launcher name.
 git_install() {
-    local url="$1" dest name
-    name=$(basename "$url" .git)
+    local spec="$1" url entry name dest
+    case "$spec" in
+        *::*) url="${spec%%::*}"; entry="${spec##*::}" ;;
+        *)    url="$spec"; entry="" ;;
+    esac
+    name="$(basename "$url" .git)"
     dest="${PT_GIT_DIR:-$PWD/pentesting-tools}/$name"
+
+    if [ "${PT_DRY_RUN:-0}" = "1" ]; then
+        if [ -n "$entry" ]; then
+            log "DRY-RUN: git clone $url -> $dest ; launcher ${PT_BINDIR:-/usr/local/bin}/${R_CHECK:-$name} -> $entry"
+        else
+            log "DRY-RUN: git clone $url -> $dest (clone-only)"
+        fi
+        return 0
+    fi
+
     if [ -d "$dest/.git" ]; then
         log "$name already cloned — updating"
-        run "git -C '$dest' pull --ff-only"
+        git -C "$dest" pull --ff-only || return 1
     else
-        run "git clone --depth 1 '$url' '$dest'"
+        git clone --depth 1 "$url" "$dest" || return 1
     fi
+
+    # Clone-only: data sets and PowerShell/Windows tools have no Linux launcher.
+    if [ -z "$entry" ]; then
+        log "$name cloned to $dest (no CLI launcher)"
+        return 0
+    fi
+
+    _git_make_launcher "$name" "$dest" "$entry"
+}
+
+# _git_make_launcher <name> <dest> <entry> : build a venv from requirements
+# (if any) and write a PATH launcher. Degrades to clone-only (with a warning)
+# if the entry point is missing or the launcher can't be written.
+_git_make_launcher() {
+    local name="$1" dest="$2" entry="$3"
+    local entry_path="$dest/$entry" py="" cmd bindir wrapper
+
+    if [ ! -f "$entry_path" ]; then
+        log "WARN: entry point '$entry' not found in $name; left as clone-only"
+        return 0
+    fi
+
+    # Python tools: isolate their requirements in a venv.
+    if [ -f "$dest/requirements.txt" ] && command -v python3 >/dev/null 2>&1; then
+        if python3 -m venv "$dest/.venv" >/dev/null 2>&1; then
+            "$dest/.venv/bin/pip" install --quiet --upgrade pip >/dev/null 2>&1 || true
+            if "$dest/.venv/bin/pip" install --quiet -r "$dest/requirements.txt" >/dev/null 2>&1; then
+                py="$dest/.venv/bin/python"
+            else
+                log "WARN: $name requirements failed; launcher will use system python3"
+            fi
+        fi
+    fi
+
+    chmod +x "$entry_path" 2>/dev/null || true
+
+    cmd="${R_CHECK:-$name}"
+    bindir="${PT_BINDIR:-/usr/local/bin}"
+    wrapper="$bindir/$cmd"
+    mkdir -p "$bindir" 2>/dev/null || true
+
+    {
+        echo '#!/usr/bin/env bash'
+        if [ -n "$py" ]; then
+            printf 'cd "%s" && exec "%s" "%s" "$@"\n' "$dest" "$py" "$entry_path"
+        else
+            printf 'cd "%s" && exec "./%s" "$@"\n' "$dest" "$entry"
+        fi
+    } > "$wrapper" 2>/dev/null && chmod +x "$wrapper" || {
+        log "WARN: could not write launcher $wrapper (need write access to $bindir); left as clone-only"
+        return 0
+    }
+
+    log "$name installed; launcher: $wrapper"
 }
 
 # binary_install <spec> : download a release asset and place it on PATH under
