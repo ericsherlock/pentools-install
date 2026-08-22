@@ -64,21 +64,32 @@ sudo ./pentools_install --all --skip burpsuite,metasploit-framework
 
 # See the plan without changing anything
 ./pentools_install --dry-run --all
+
+# Update or remove the selected tools
+sudo ./pentools_install --update --all
+sudo ./pentools_install --uninstall --only web
 ```
 
 ### Options
 
 | Flag | Description |
 |------|-------------|
-| `--all`           | Install every category (skips the menu). |
-| `--only <cats>`   | Install only these categories (comma separated). |
+| `--update`        | Update the selected tools instead of installing. |
+| `--uninstall`     | Remove the selected tools instead of installing. |
+| `--all`           | Select every category (skips the menu). |
+| `--only <cats>`   | Act only on these categories (comma separated). |
 | `--skip <tools>`  | Skip these tools by name (comma separated). |
-| `--sample <N>`    | Install only the first N tools per selected category (0 = all). Used by the CI install-test smoke tier. |
-| `--dry-run`       | Show what would be installed; make no changes. Needs no root. |
-| `--yes`, `-y`     | Assume "yes"; install all categories if no `--only` is given. |
+| `--sample <N>`    | Act on only the first N tools per selected category (0 = all). Used by the CI install-test smoke tier. |
+| `--dry-run`       | Show what would happen; make no changes. Needs no root. |
+| `--yes`, `-y`     | Assume "yes"; select all categories if no `--only` is given. |
 | `--list`          | List every tool in the manifest and exit. |
 | `--categories`    | List categories with tool counts and exit. |
 | `--help`, `-h`    | Show help and exit. |
+
+`--update` and `--uninstall` act on tools that are currently present, using
+the same per-OS method resolution as install (native package upgrade/removal,
+or `pipx` / `gem` / `go` / `git` / launcher cleanup for fallbacks). The base
+prerequisites (`git`, `pipx`) are never updated or removed.
 
 ---
 
