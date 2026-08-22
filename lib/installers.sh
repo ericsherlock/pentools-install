@@ -275,3 +275,68 @@ dispatch_fallback() {
         *)      log "Unknown fallback method: '$type'"; return 1 ;;
     esac
 }
+
+# ---------------------------------------------------------------------------
+# Update / uninstall
+# ---------------------------------------------------------------------------
+
+# native_update <package> : upgrade a package via the detected manager.
+native_update() {
+    case "$PT_PKG_MGR" in
+        apt)    run "apt-get install --only-upgrade -y $1" ;;
+        dnf)    run "dnf upgrade -y $1" ;;
+        pacman) run "pacman -S --noconfirm --needed $1" ;;
+        brew)   run "brew upgrade $1" ;;
+        *)      log "No native updater for '$PT_PKG_MGR'"; return 1 ;;
+    esac
+}
+
+# native_uninstall <package> : remove a package via the detected manager.
+native_uninstall() {
+    case "$PT_PKG_MGR" in
+        apt)    run "apt-get remove -y $1" ;;
+        dnf)    run "dnf remove -y $1" ;;
+        pacman) run "pacman -Rns --noconfirm $1" ;;
+        brew)   run "brew uninstall $1" ;;
+        *)      log "No native uninstaller for '$PT_PKG_MGR'"; return 1 ;;
+    esac
+}
+
+# fallback_update <type:spec> <check> : re-install the latest via the fallback.
+fallback_update() {
+    local raw="$1" type spec
+    type="${raw%%:*}"; spec="${raw#*:}"
+    case "$type" in
+        pipx)   run "pipx install --force $spec" ;;
+        gem)    run "gem update $spec" ;;
+        go)     go_install "$spec" ;;            # @latest re-install
+        git)    git_install "$raw" ;;            # git_install pulls if present
+        binary) binary_install "$spec" ;;
+        *)      log "No updater for method '$type'"; return 1 ;;
+    esac
+}
+
+# fallback_uninstall <type:spec> <check> : remove a fallback-installed tool.
+fallback_uninstall() {
+    local raw="$1" check="$2" type spec url name dest gobin pkg
+    type="${raw%%:*}"; spec="${raw#*:}"
+    case "$type" in
+        pipx)
+            # pipx knows git installs by project name (== check); PyPI installs
+            # by the spec name (strip any version specifier).
+            if [ "${spec#git+}" != "$spec" ]; then pkg="$check"; else pkg="${spec%%[=<>@]*}"; fi
+            run "pipx uninstall $pkg" ;;
+        gem)    run "gem uninstall -aIx $spec" ;;
+        go)
+            gobin="$(command -v go >/dev/null 2>&1 && go env GOPATH 2>/dev/null || true)"
+            [ -n "$gobin" ] || gobin="${HOME:-/root}/go"
+            run "rm -f '$gobin/bin/$check'" ;;
+        git)
+            url="${spec%%::*}"; name="$(basename "$url" .git)"
+            dest="${PT_GIT_DIR:-$PWD/pentesting-tools}/$name"
+            run "rm -rf '$dest'"
+            run "rm -f '${PT_BINDIR:-/usr/local/bin}/$check'" ;;
+        binary) run "rm -f '${PT_BINDIR:-/usr/local/bin}/$check'" ;;
+        *)      log "No uninstaller for method '$type'"; return 1 ;;
+    esac
+}
