@@ -323,8 +323,10 @@ fallback_uninstall() {
     case "$type" in
         pipx)
             # pipx knows git installs by project name (== check); PyPI installs
-            # by the spec name (strip any version specifier).
+            # by the spec name (strip any version specifier). pipx stores names
+            # PEP 503-normalized (lowercase), so match that (e.g. theHarvester).
             if [ "${spec#git+}" != "$spec" ]; then pkg="$check"; else pkg="${spec%%[=<>@]*}"; fi
+            pkg="$(printf '%s' "$pkg" | tr 'A-Z' 'a-z')"
             run "pipx uninstall $pkg" ;;
         gem)    run "gem uninstall -aIx $spec" ;;
         go)
