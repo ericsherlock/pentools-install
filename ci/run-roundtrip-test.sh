@@ -4,10 +4,14 @@
 #
 # Exercises the full lifecycle on one target with a smoke-scale selection
 # (one tool per category): install -> update -> uninstall. Asserts each phase
-# reports failed=0, and on Linux targets asserts a concrete presence
-# transition for `nmap` (installed -> still present after update -> gone after
-# uninstall). macOS skips the presence check because tools may be preinstalled
-# on the runner; it still gates on failed=0 for all three phases.
+# reports failed=0, and that `nmap` is present after install/update and gone
+# after uninstall.
+#
+# Linux targets only: the runners for those are clean containers, so "we
+# installed X, now remove X" is unambiguous. macOS is excluded here because its
+# hosted runner ships tools preinstalled (e.g. awscli) that the presence gate
+# can't distinguish from ones we installed; macOS install is covered by the
+# install-test job instead.
 
 set -euo pipefail
 
@@ -16,31 +20,28 @@ target="${1:?target required}"
 # shellcheck source=ci/targets.sh
 . "$(dirname "$0")/targets.sh"
 
-# Presence transition checks — Linux containers are clean, macOS may not be.
-if [ "$target" = "macos" ]; then
-    after_install=""
-    after_uninstall=""
-else
-    after_install='command -v nmap >/dev/null || { echo "::error::nmap missing after install"; exit 1; }'
-    after_uninstall='! command -v nmap >/dev/null || { echo "::error::nmap still present after uninstall"; exit 1; }'
-fi
+# Skip tools that are genuinely unavailable on this target (they would fail the
+# install phase for reasons unrelated to the lifecycle machinery).
+skip="$(expected_fail_for "$target" | tr ' ' ',')"
+skipflag=""
+[ -n "$skip" ] && skipflag="--skip $skip"
 
 phases="
     set -e
     echo '== INSTALL =='
-    ./pentools_install --all --sample 1 --yes 2>&1 | tee inst.txt
+    ./pentools_install --all --sample 1 $skipflag --yes 2>&1 | tee inst.txt
     grep -q 'failed=0' inst.txt
-    $after_install
+    command -v nmap >/dev/null || { echo '::error::nmap missing after install'; exit 1; }
 
     echo '== UPDATE =='
-    ./pentools_install --all --sample 1 --update --yes 2>&1 | tee upd.txt
+    ./pentools_install --all --sample 1 $skipflag --update --yes 2>&1 | tee upd.txt
     grep -q 'failed=0' upd.txt
-    $after_install
+    command -v nmap >/dev/null || { echo '::error::nmap missing after update'; exit 1; }
 
     echo '== UNINSTALL =='
-    ./pentools_install --all --sample 1 --uninstall --yes 2>&1 | tee unin.txt
+    ./pentools_install --all --sample 1 $skipflag --uninstall --yes 2>&1 | tee unin.txt
     grep -q 'failed=0' unin.txt
-    $after_uninstall
+    ! command -v nmap >/dev/null || { echo '::error::nmap still present after uninstall'; exit 1; }
 
     echo 'ROUNDTRIP_OK'
 "
