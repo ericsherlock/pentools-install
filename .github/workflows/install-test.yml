@@ -86,6 +86,18 @@ jobs:
         if: steps.run.outcome == 'failure'
         run: exit 1
 
+  roundtrip:
+    name: Round-trip ${{ matrix.target }}
+    runs-on: ${{ matrix.target == 'macos' && 'macos-latest' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [kali, debian, fedora, arch, macos]
+    steps:
+      - uses: actions/checkout@v5
+      - name: install -> update -> uninstall (smoke-scale)
+        run: bash ci/run-roundtrip-test.sh "${{ matrix.target }}"
+
   summary:
     name: Aggregate results
     needs: install-test
