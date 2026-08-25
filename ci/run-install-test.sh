@@ -27,16 +27,6 @@ case "$mode" in
     *)     sample="--sample 1" ;;
 esac
 
-# Tools with no install path on a given target — genuinely absent from that
-# ecosystem with a native cell that is attempted and fails, and no cross-distro
-# fallback. (Tools with a "-" native cell just skip, so they aren't listed.)
-expected_fail_for() {
-    case "$1" in
-        debian) echo "metasploit-framework beef-xss gvm burpsuite zaproxy feroxbuster ghidra jadx kismet radare2 rizin" ;;
-        *)      echo "" ;;
-    esac
-}
-
 # Pass if the installer reported failed=0, or if the only failures are tools
 # known to be unavailable on this target (see expected_fail_for).
 assert_clean() {

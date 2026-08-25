@@ -88,11 +88,13 @@ jobs:
 
   roundtrip:
     name: Round-trip ${{ matrix.target }}
-    runs-on: ${{ matrix.target == 'macos' && 'macos-latest' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        target: [kali, debian, fedora, arch, macos]
+        # Linux only — macOS runners ship tools preinstalled, which the
+        # presence gate can't tell apart from ones we installed.
+        target: [kali, debian, fedora, arch]
     steps:
       - uses: actions/checkout@v5
       - name: install -> update -> uninstall (smoke-scale)

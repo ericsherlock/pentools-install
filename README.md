@@ -223,9 +223,9 @@ A separate [Install Test](.github/workflows/install-test.yml) workflow does
 Debian, Fedora, Arch+BlackArch, and macOS, gated on the installer reporting
 `failed=0`. It runs weekly (and on demand via the Actions tab) with a
 **smoke** tier (one tool per category, the default) or a **full** tier (every
-tool). It also runs a **round-trip** job per target — install → update →
+tool). It also runs a **round-trip** job per Linux target — install → update →
 uninstall (smoke-scale) — that gates on `failed=0` at each phase and checks a
-concrete present→absent transition on Linux. Free on this public repo.
+concrete present→absent transition for `nmap`. Free on this public repo.
 
 ---
 

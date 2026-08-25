@@ -10,6 +10,16 @@
 # Sourced by run-install-test.sh and run-roundtrip-test.sh so the environment
 # definitions stay in one place.
 
+# expected_fail_for <target> : tools genuinely absent from that target (native
+# cell attempted and fails, no cross-distro fallback). Shared by the install
+# gate (tolerate) and the round-trip (skip).
+expected_fail_for() {
+    case "$1" in
+        debian) echo "metasploit-framework beef-xss gvm burpsuite zaproxy feroxbuster ghidra jadx kismet radare2 rizin" ;;
+        *)      echo "" ;;
+    esac
+}
+
 # BlackArch bootstrap — needed for many pacman package names.
 _blackarch_strap='
   pacman -Sy --noconfirm --needed archlinux-keyring curl
