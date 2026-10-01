@@ -210,7 +210,9 @@ chkrootkit  | vuln         | pkg  | chkrootkit  | chkrootkit  | chkrootkit  | - 
 # ============================================================================
 # exploitation — frameworks
 # ============================================================================
-metasploit-framework | exploitation | pkg | metasploit-framework | - | metasploit | metasploit | - | msfconsole
+# brew: the `metasploit` cask was disabled 2026-09-01 (fails Gatekeeper), so
+# macOS skips it; use Rapid7's installer from https://docs.metasploit.com/.
+metasploit-framework | exploitation | pkg | metasploit-framework | - | metasploit | - | - | msfconsole
 exploitdb   | exploitation | pkg  | exploitdb   | -           | exploitdb   | exploitdb   | git:https://gitlab.com/exploit-database/exploitdb.git::searchsploit | searchsploit
 setoolkit   | exploitation | pkg  | set         | -           | set         | -           | git:https://github.com/trustedsec/social-engineer-toolkit.git::setoolkit
 beef-xss    | exploitation | pkg  | beef-xss    | -           | beef        | -           | -
