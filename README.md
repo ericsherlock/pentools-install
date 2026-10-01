@@ -43,6 +43,10 @@ be re-run safely.
 > enabled. Fedora's security-tool coverage is thin, so many tools there install
 > via `pipx`/`go`/`git` fallbacks. Where a tool isn't available on your platform
 > at all, it is skipped with a note rather than failing.
+>
+> **macOS:** Homebrew disabled the `metasploit` cask on 2026-09-01 (it fails the
+> Gatekeeper check), so `metasploit-framework` is skipped there. Install it with
+> Rapid7's installer instead — see <https://docs.metasploit.com/>.
 
 ---
 
