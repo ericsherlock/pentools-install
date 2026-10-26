@@ -59,6 +59,26 @@ refresh_indexes() {
 # Fallback method handlers — each takes the spec *after* the "type:" prefix.
 # ---------------------------------------------------------------------------
 
+# pipx_ensure_healthy : repair a pipx that is installed but cannot run. Arch's
+# python-pipx (1.18.4-1) imports filelock without depending on python-filelock,
+# so an existing pipx passes the presence check yet fails every install. The
+# probe uses pipx's own interpreter (its shebang). Runs once per process.
+pipx_ensure_healthy() {
+    [ "${PT_PIPX_CHECKED:-0}" = "1" ] && return 0
+    PT_PIPX_CHECKED=1
+    if [ "$PT_PKG_MGR" != "pacman" ] || ! tool_present pipx; then return 0; fi
+
+    local py
+    py="$(head -n 1 "$(command -v pipx)" 2>/dev/null | sed -n 's/^#![[:space:]]*//p')"
+    [ -n "$py" ] || py="python3"
+    # $py is intentionally unquoted: the shebang may be "/usr/bin/env python3".
+    # shellcheck disable=SC2086
+    $py -c 'import filelock' >/dev/null 2>&1 && return 0
+
+    log "pipx is missing its filelock dependency — installing python-filelock"
+    native_install python-filelock
+}
+
 # pipx_install <spec> : PEP 668-safe Python tool install. <spec> may be a
 # PyPI name or a VCS ref (e.g. git+https://github.com/org/repo).
 pipx_install() {
@@ -67,6 +87,7 @@ pipx_install() {
         log "pipx not found — attempting to bootstrap it"
         native_install pipx || run "python3 -m pip install --user pipx"
     fi
+    pipx_ensure_healthy
     run "pipx install $spec"
 }
 
@@ -307,7 +328,7 @@ fallback_update() {
     local raw="$1" type spec
     type="${raw%%:*}"; spec="${raw#*:}"
     case "$type" in
-        pipx)   run "pipx install --force $spec" ;;
+        pipx)   pipx_ensure_healthy; run "pipx install --force $spec" ;;
         gem)    run "gem update $spec" ;;
         go)     go_install "$spec" ;;            # @latest re-install
         git)    git_install "$raw" ;;            # git_install pulls if present
@@ -327,7 +348,7 @@ fallback_uninstall() {
             # PEP 503-normalized (lowercase), so match that (e.g. theHarvester).
             if [ "${spec#git+}" != "$spec" ]; then pkg="$check"; else pkg="${spec%%[=<>@]*}"; fi
             pkg="$(printf '%s' "$pkg" | tr 'A-Z' 'a-z')"
-            run "pipx uninstall $pkg" ;;
+            pipx_ensure_healthy; run "pipx uninstall $pkg" ;;
         gem)    run "gem uninstall -aIx $spec" ;;
         go)
             gobin="$(command -v go >/dev/null 2>&1 && go env GOPATH 2>/dev/null || true)"
