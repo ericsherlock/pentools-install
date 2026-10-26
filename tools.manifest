@@ -45,7 +45,8 @@
 # base — prerequisites the fallbacks depend on
 # ============================================================================
 git         | base         | pkg  | git         | git         | git         | git         | -
-pipx        | base         | pkg  | pipx        | pipx        | python-pipx | pipx        | -
+# python-filelock: Arch's python-pipx (1.18.4-1) imports filelock but omits the dep.
+pipx        | base         | pkg  | pipx        | pipx        | python-pipx python-filelock | pipx        | -
 
 # ============================================================================
 # recon — discovery, scanning, DNS, network

@@ -48,7 +48,7 @@ run_in_target() {
             ;;
         arch)
             image="archlinux:latest"
-            setup="pacman -Sy --noconfirm --needed gawk git go ruby curl python-pipx findutils base-devel rust cmake libpcap && $_blackarch_strap"
+            setup="pacman -Sy --noconfirm --needed gawk git go ruby curl python-pipx python-filelock findutils base-devel rust cmake libpcap && $_blackarch_strap"
             ;;
         macos)
             # Native on the macOS runner (Homebrew, no root). Ensure go exists
